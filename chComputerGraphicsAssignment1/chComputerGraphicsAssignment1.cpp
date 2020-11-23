@@ -76,6 +76,7 @@ void nodeDisplay(chNode *pNode) // function to render a node (called from displa
 	glutSolidSphere(mathsRadiusOfSphereFromVolume(pNode->m_fMass),15,15);
 
 	// CURRENTLY DRAWS EVERYTHING AS GREEN SPHERE, MAKE CHANGE TO HAVE COLOUR AND SHAPE CHANGE DEPENDING ON CONTINENT
+	// FIGURE OUT WAY TO DISPLAY NAMES ABOVE SHAPES
 
 	glPopMatrix();
 	glPopAttrib();
