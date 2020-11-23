@@ -57,6 +57,10 @@ void buildGrid(); //
 void nodeDisplay(chNode *pNode) // function to render a node (called from display())
 {
 	// put your node rendering (ogl) code here
+
+
+
+
 }
 
 void arcDisplay(chArc *pArc) // function to render an arc (called from display())
