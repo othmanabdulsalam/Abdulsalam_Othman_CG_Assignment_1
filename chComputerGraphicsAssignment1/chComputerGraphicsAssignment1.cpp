@@ -75,6 +75,8 @@ void nodeDisplay(chNode *pNode) // function to render a node (called from displa
 	glTranslated(position[0],position[1],position[2]);
 	glutSolidSphere(mathsRadiusOfSphereFromVolume(pNode->m_fMass),15,15);
 
+	// CURRENTLY DRAWS EVERYTHING AS GREEN SPHERE, MAKE CHANGE TO HAVE COLOUR AND SHAPE CHANGE DEPENDING ON CONTINENT
+
 	glPopMatrix();
 	glPopAttrib();
 
@@ -84,6 +86,25 @@ void nodeDisplay(chNode *pNode) // function to render a node (called from displa
 void arcDisplay(chArc *pArc) // function to render an arc (called from display())
 {
 	// put your arc rendering (ogl) code here
+
+	// node0 indicates start node, node1 indicates end node
+	chNode* m_pNode0 = pArc->m_pNode0;
+	chNode* m_pNode1 = pArc->m_pNode1;
+
+	// floats for the two end points of the end
+
+	float* arcPos0 = m_pNode0->m_afPosition;
+	float* arcPos1 = m_pNode1->m_afPosition;
+
+
+	glEnable(GL_COLOR_MATERIAL);
+	glDisable(GL_LIGHTING);
+	glBegin(GL_LINES);
+		glColor3f(1.0f,0.0f,0.0f);
+		glVertex3f(arcPos0[0],arcPos0[1], arcPos0[2]);
+		glColor3f(0.0f, 1.0f, 0.0f);
+		glVertex3f(arcPos1[0], arcPos1[1], arcPos1[2]);
+	glEnd();
 }
 
 // draw the scene. Called once per frame and should only deal with scene drawing (not updating the simulator)
