@@ -58,7 +58,25 @@ void nodeDisplay(chNode *pNode) // function to render a node (called from displa
 {
 	// put your node rendering (ogl) code here
 
+	float* position = pNode->m_afPosition; // set float pointer for the position of country data
 
+	unsigned int continent = pNode->m_uiContinent; // set unsigned int for the continent of country data
+
+	glPushMatrix();
+	glPushAttrib(GL_ALL_ATTRIB_BITS);
+
+
+	// set utility colours
+	float afCol[] = { 0.0f, 1.0f, 0.0f, 1.0f };
+	utilitiesColourToMat(afCol, 2.0f);
+
+	// use gl translate d because using integer numbers 
+	// pass x y and z position variables
+	glTranslated(position[0],position[1],position[2]);
+	glutSolidSphere(mathsRadiusOfSphereFromVolume(pNode->m_fMass),15,15);
+
+	glPopMatrix();
+	glPopAttrib();
 
 
 }
@@ -83,16 +101,6 @@ void display()
 	visitNodes(&g_System, nodeDisplay); // loop through all of the nodes and draw them with the nodeDisplay function
 	visitArcs(&g_System, arcDisplay); // loop through all of the arcs and draw them with the arcDisplay function
 	glPopAttrib();
-
-
-	// draw a simple sphere
-	float afCol[] = { 0.3f, 1.0f, 0.5f, 1.0f };
-	utilitiesColourToMat(afCol, 2.0f);
-
-	glPushMatrix();
-	glTranslatef(0.0f, 30.0f, 0.0f);
-	glutSolidSphere(5.0f, 10, 10);
-	glPopMatrix();
 
 	glFlush(); // ensure all the ogl instructions have been processed
 	glutSwapBuffers(); // present the rendered scene to the screen
@@ -137,6 +145,7 @@ void keyboard(unsigned char c, int iXPos, int iYPos)
 	case 'g':
 		controlToggle(g_Control, csg_uiControlDrawGrid); // toggle the drawing of the grid
 		break;
+
 	}
 }
 
