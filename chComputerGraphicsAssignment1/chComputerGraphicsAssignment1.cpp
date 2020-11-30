@@ -52,79 +52,100 @@ void myInit(); // the myinit function runs once, before rendering starts and sho
 void nodeDisplay(chNode *pNode); // callled by the display function to draw nodes
 void arcDisplay(chArc *pArc); // called by the display function to draw arcs
 void buildGrid(); // 
-void nodeAttributes(chNode *pNode, unsigned int continent, float* position, char* name);
+void nodeAttributes(chNode *pNode, unsigned int continent, unsigned int worldSystem, float* position, char* name);
 
 void nodeDisplay(chNode *pNode) // function to render a node (called from display())
 {
 	// put your node rendering (ogl) code here
-
 	float* position = pNode->m_afPosition; // set float pointer for the position of country data
 
 	unsigned int continent = pNode->m_uiContinent; // set unsigned int for the continent of country data
-
-	
-	char* name = pNode->m_acName;
+	char* name = pNode->m_acName; // set the name of the country node 
+	unsigned int worldSystem = pNode->m_uiWorldSystem; // set  unsigned int for the world system of the country
 
 	glPushMatrix();
 	glPushAttrib(GL_ALL_ATTRIB_BITS);
 
 	// call to function that handles attributes of the node
-	nodeAttributes(pNode,continent,position,name);
-	// FIGURE OUT WAY TO DISPLAY NAMES ABOVE SHAPES
+	nodeAttributes(pNode,continent, worldSystem,position,name);
 
 	glPopMatrix();
 	glPopAttrib();
 }
 
-void nodeAttributes(chNode* pNode, unsigned int continent, float* position,char* name)
+void nodeAttributes(chNode* pNode, unsigned int continent, unsigned int worldSystem, float* position,char* name)
 {
 	float blue[] = { 0.0f, 0.0f, 1.0f, 10.0f };
 	float green[] = { 0.0f, 1.0f, 0.0f, 1.0f };
 	float red[] = { 1.0f, 0.0f, 0.0f, 1.0f };
 	float purple[] = { 1.0f, 0.0f, 1.0f, 1.0f };
 	float orange[] = { 1.0f, 0.5f, 0.0f, 1.0f };
+	float white[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 	// use gl translate d because using integer numbers 
 	// pass x y and z position variables
 	glTranslated(position[0], position[1], position[2]);
 
-	// switch statement handling the shape and colour that is chosen depending on continent that country belongs to
+	// switch statement handling the colour that is chosen depending on continent that country belongs to
 	switch (continent)
 	{
-		// solid cube of colour blue
-	case 6:
+		
+	case 6: // South America
+		// colour blue
 		utilitiesColourToMat(blue, 2.0f);
-		glutSolidCube(mathsDimensionOfCubeFromVolume(pNode->m_fMass));
 		break;
-	case 5:
-		// solid sphere of colour purple
+	case 5: // Oceania
+		// colour purple
 		utilitiesColourToMat(purple, 0.0f);
-		glutSolidSphere(mathsRadiusOfSphereFromVolume(pNode->m_fMass), 15, 15);
 		break;
-	case 4:
-		// solid cube of colour red
+	case 4: // North America
+		// colour red
 		utilitiesColourToMat(red, 2.0f);
-		glutSolidCube(mathsDimensionOfCubeFromVolume(pNode->m_fMass));
 		break;
-	case 3:
-		// solid sphere of colour orange
+	case 3: // Europe
+		// colour orange
 		utilitiesColourToMat(orange, 2.0f);
-		glutSolidSphere(mathsRadiusOfSphereFromVolume(pNode->m_fMass), 15, 15);
 		break;
-	case 2:
-		// solid cube of colour orange
-		utilitiesColourToMat(orange, 2.0f);
-		glutSolidCube(mathsDimensionOfCubeFromVolume(pNode->m_fMass));
+	case 2: // Asia
+		// colour white
+		utilitiesColourToMat(white, 2.0f);
 		break;
 
-	default: // default being for case 1
-		// solid sphere of colour green
+	case 1: // Africa
+		// colour green
 		utilitiesColourToMat(green, 2.0f);
-		glutSolidSphere(mathsRadiusOfSphereFromVolume(pNode->m_fMass), 15, 15);
-		outlinePrint(name,true);
+		break;
+	default:
 		break;
 	}
-	
+
+	// switch statement handling shape displayed depending on world system
+	switch (worldSystem)
+	{
+	case 3: // third world represents sphere
+		glutSolidSphere(mathsRadiusOfSphereFromVolume(pNode->m_fMass), 15, 15);
+		glTranslated(0, 20, 0); // translate text to be above the node object in scene
+		break;
+	case 2:
+		glutSolidCube(mathsDimensionOfCubeFromVolume(pNode->m_fMass));
+		glTranslated(0, 20, 0); // translate text to be above the node object in scene
+		break;
+	case 1: // first world is cone
+		glRotatef(270, 1.0, 0.0, 0.0); // rotate so cone points upwards
+		glutSolidCone(mathsDimensionOfCubeFromVolume(pNode->m_fMass)/3, mathsDimensionOfCubeFromVolume(pNode->m_fMass), 15, 15);
+		//glutSolidCone(10, mathsDimensionOfCubeFromVolume(pNode->m_fMass), 50, 50);
+		
+		// return rotation so text isnt also rotated
+		glRotatef(-270, 1.0, 0.0, 0.0);
+		glTranslated(0, 40, 0); // translate text to be above the node object in scene
+		break;
+	default:
+		break;
+	}
+
+	glMultMatrixf(camRotMatInv(g_Camera));// ensure text is always facing towards camera view
+	glScalef(16, 16, 0.1f);
+	outlinePrint(name, true);
 }
 
 
