@@ -243,6 +243,9 @@ void keyboard(unsigned char c, int iXPos, int iYPos)
 	case 'g':
 		controlToggle(g_Control, csg_uiControlDrawGrid); // toggle the drawing of the grid
 		break;
+	case 27: // If escape key is pressed, exit the program
+		exit(0);
+		break;
 
 	}
 }
