@@ -138,6 +138,8 @@ void nodeAttributes(chNode* pNode, unsigned int continent, unsigned int worldSys
 		glRotatef(270, 1.0, 0.0, 0.0); // rotate so cone points upwards
 
 		glutSolidCone(mathsDimensionOfCubeFromVolume(pNode->m_fMass)/3, mathsDimensionOfCubeFromVolume(pNode->m_fMass), 15, 15);
+
+		/* CODE USED TO TEST WHY BASE FOR CONES AND CYLINDER DOES NOT APPEAR */
 		//glutSolidCone(10,10.5,30,30);
 		//gluCylinder(gluNewQuadric(), 0, 10, 10.5, 30, 30);
 		//glutSolidCone(10, mathsDimensionOfCubeFromVolume(pNode->m_fMass), 50, 50);
