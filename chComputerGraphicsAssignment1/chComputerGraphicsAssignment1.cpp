@@ -52,7 +52,7 @@ void myInit(); // the myinit function runs once, before rendering starts and sho
 void nodeDisplay(chNode *pNode); // callled by the display function to draw nodes
 void arcDisplay(chArc *pArc); // called by the display function to draw arcs
 void buildGrid(); // 
-
+void nodeAttributes(chNode *pNode, unsigned int continent, float* position, char* name);
 
 void nodeDisplay(chNode *pNode) // function to render a node (called from display())
 {
@@ -62,27 +62,71 @@ void nodeDisplay(chNode *pNode) // function to render a node (called from displa
 
 	unsigned int continent = pNode->m_uiContinent; // set unsigned int for the continent of country data
 
+	
+	char* name = pNode->m_acName;
+
 	glPushMatrix();
 	glPushAttrib(GL_ALL_ATTRIB_BITS);
 
-
-	// set utility colours
-	float afCol[] = { 0.0f, 1.0f, 0.0f, 1.0f };
-	utilitiesColourToMat(afCol, 2.0f);
-
-	// use gl translate d because using integer numbers 
-	// pass x y and z position variables
-	glTranslated(position[0],position[1],position[2]);
-	glutSolidSphere(mathsRadiusOfSphereFromVolume(pNode->m_fMass),15,15);
-
-	// CURRENTLY DRAWS EVERYTHING AS GREEN SPHERE, MAKE CHANGE TO HAVE COLOUR AND SHAPE CHANGE DEPENDING ON CONTINENT
+	// call to function that handles attributes of the node
+	nodeAttributes(pNode,continent,position,name);
 	// FIGURE OUT WAY TO DISPLAY NAMES ABOVE SHAPES
 
 	glPopMatrix();
 	glPopAttrib();
-
-
 }
+
+void nodeAttributes(chNode* pNode, unsigned int continent, float* position,char* name)
+{
+	float blue[] = { 0.0f, 0.0f, 1.0f, 10.0f };
+	float green[] = { 0.0f, 1.0f, 0.0f, 1.0f };
+	float red[] = { 1.0f, 0.0f, 0.0f, 1.0f };
+	float purple[] = { 1.0f, 0.0f, 1.0f, 1.0f };
+	float orange[] = { 1.0f, 0.5f, 0.0f, 1.0f };
+
+	// use gl translate d because using integer numbers 
+	// pass x y and z position variables
+	glTranslated(position[0], position[1], position[2]);
+
+	// switch statement handling the shape and colour that is chosen depending on continent that country belongs to
+	switch (continent)
+	{
+		// solid cube of colour blue
+	case 6:
+		utilitiesColourToMat(blue, 2.0f);
+		glutSolidCube(mathsDimensionOfCubeFromVolume(pNode->m_fMass));
+		break;
+	case 5:
+		// solid sphere of colour purple
+		utilitiesColourToMat(purple, 0.0f);
+		glutSolidSphere(mathsRadiusOfSphereFromVolume(pNode->m_fMass), 15, 15);
+		break;
+	case 4:
+		// solid cube of colour red
+		utilitiesColourToMat(red, 2.0f);
+		glutSolidCube(mathsDimensionOfCubeFromVolume(pNode->m_fMass));
+		break;
+	case 3:
+		// solid sphere of colour orange
+		utilitiesColourToMat(orange, 2.0f);
+		glutSolidSphere(mathsRadiusOfSphereFromVolume(pNode->m_fMass), 15, 15);
+		break;
+	case 2:
+		// solid cube of colour orange
+		utilitiesColourToMat(orange, 2.0f);
+		glutSolidCube(mathsDimensionOfCubeFromVolume(pNode->m_fMass));
+		break;
+
+	default: // default being for case 1
+		// solid sphere of colour green
+		utilitiesColourToMat(green, 2.0f);
+		glutSolidSphere(mathsRadiusOfSphereFromVolume(pNode->m_fMass), 15, 15);
+		outlinePrint(name,true);
+		break;
+	}
+	
+}
+
 
 void arcDisplay(chArc *pArc) // function to render an arc (called from display())
 {
