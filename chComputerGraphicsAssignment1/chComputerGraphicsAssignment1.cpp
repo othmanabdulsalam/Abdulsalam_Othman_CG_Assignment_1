@@ -36,6 +36,16 @@ const static char csg_acFileParam[] = {"-input"};
 // global var: file to load data from
 char g_acFile[256];
 
+
+// color data
+float blue[] = { 0.0f, 0.0f, 1.0f, 10.0f };
+float green[] = { 0.0f, 1.0f, 0.0f, 1.0f };
+float red[] = { 1.0f, 0.0f, 0.0f, 1.0f };
+float purple[] = { 1.0f, 0.0f, 1.0f, 1.0f };
+float orange[] = { 1.0f, 0.5f, 0.0f, 1.0f };
+float white[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+
 // core functions -> reduce to just the ones needed by glut as pointers to functions to fulfill tasks
 void display(); // The rendering function. This is called once for each frame and you should put rendering code here
 void idle(); // The idle function is called at least once per frame and is where all simulation and operational code should be placed
@@ -75,12 +85,6 @@ void nodeDisplay(chNode *pNode) // function to render a node (called from displa
 
 void nodeAttributes(chNode* pNode, unsigned int continent, unsigned int worldSystem, float* position,char* name)
 {
-	float blue[] = { 0.0f, 0.0f, 1.0f, 10.0f };
-	float green[] = { 0.0f, 1.0f, 0.0f, 1.0f };
-	float red[] = { 1.0f, 0.0f, 0.0f, 1.0f };
-	float purple[] = { 1.0f, 0.0f, 1.0f, 1.0f };
-	float orange[] = { 1.0f, 0.5f, 0.0f, 1.0f };
-	float white[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 	// use gl translate d because using integer numbers 
 	// pass x y and z position variables
@@ -132,11 +136,15 @@ void nodeAttributes(chNode* pNode, unsigned int continent, unsigned int worldSys
 		break;
 	case 1: // first world is cone
 		glRotatef(270, 1.0, 0.0, 0.0); // rotate so cone points upwards
+
 		glutSolidCone(mathsDimensionOfCubeFromVolume(pNode->m_fMass)/3, mathsDimensionOfCubeFromVolume(pNode->m_fMass), 15, 15);
+		//glutSolidCone(10,10.5,30,30);
+		//gluCylinder(gluNewQuadric(), 0, 10, 10.5, 30, 30);
 		//glutSolidCone(10, mathsDimensionOfCubeFromVolume(pNode->m_fMass), 50, 50);
 		
 		// return rotation so text isnt also rotated
 		glRotatef(-270, 1.0, 0.0, 0.0);
+
 		glTranslated(0, 40, 0); // translate text to be above the node object in scene
 		break;
 	default:
@@ -147,6 +155,7 @@ void nodeAttributes(chNode* pNode, unsigned int continent, unsigned int worldSys
 	glScalef(16, 16, 0.1f);
 	outlinePrint(name, true);
 }
+
 
 
 void arcDisplay(chArc *pArc) // function to render an arc (called from display())
