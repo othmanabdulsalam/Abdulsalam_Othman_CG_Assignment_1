@@ -185,6 +185,13 @@ void arcDisplay(chArc *pArc) // function to render an arc (called from display()
 }
 
 
+const float TOTAL_KINETIC_ENERGY_DEFAULT = 0;
+const float SPRING_CONSTANT_DEFAULT = 0.1f;
+const float COULOMB_CONSTANT_DEFAULT = 500.0f;
+float DAMPING_COEFFICIENT_DEFAULT = 0.2f;
+float TIME_STEP_DEFAULT = 1.0f;
+
+chLinkedList nodeList; // linked list that stores every node
 
 void isSimulationOn()
 {
@@ -368,6 +375,9 @@ void myInit()
 	// initialise the data system and load the data file
 	initSystem(&g_System);
 	parse(g_acFile, parseSection, parseNetwork, parseArc, parsePartition, parseVector);
+
+	// initialise list
+	initList(nodeList,);
 }
 
 int main(int argc, char* argv[])
