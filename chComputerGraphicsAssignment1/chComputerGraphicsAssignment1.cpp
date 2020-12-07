@@ -45,6 +45,9 @@ float purple[] = { 1.0f, 0.0f, 1.0f, 1.0f };
 float orange[] = { 1.0f, 0.5f, 0.0f, 1.0f };
 float white[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
+// boolean that sets simulation on or off
+bool isSimulationOn = false;
+
 
 // core functions -> reduce to just the ones needed by glut as pointers to functions to fulfill tasks
 void display(); // The rendering function. This is called once for each frame and you should put rendering code here
