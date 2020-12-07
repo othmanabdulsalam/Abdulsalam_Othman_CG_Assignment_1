@@ -47,7 +47,8 @@ float white[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 // boolean that sets simulation on or off
 bool isSimulation = false;
-
+static chLinkedList* nodeList; // linked list that stores every node
+chLinkedListElement* nodeElement;
 
 // core functions -> reduce to just the ones needed by glut as pointers to functions to fulfill tasks
 void display(); // The rendering function. This is called once for each frame and you should put rendering code here
@@ -83,6 +84,12 @@ void nodeDisplay(chNode *pNode) // function to render a node (called from displa
 
 	// call to function that handles attributes of the node
 	nodeAttributes(pNode,continent, worldSystem,position,name);
+
+	// create elementType out of node
+	initElement(nodeElement, pNode, 1);
+	
+	// add to the nodeList
+	pushTail(nodeList,nodeElement);
 
 	glPopMatrix();
 	glPopAttrib();
@@ -191,7 +198,6 @@ const float COULOMB_CONSTANT_DEFAULT = 500.0f;
 float DAMPING_COEFFICIENT_DEFAULT = 0.2f;
 float TIME_STEP_DEFAULT = 1.0f;
 
-chLinkedList nodeList; // linked list that stores every node
 
 void isSimulationOn()
 {
@@ -203,10 +209,19 @@ void isSimulationOn()
 
 void runSimulation()
 {
-	/*for (i = 0;)
-	{
+	int linkedListSize = count(nodeList);
+	int i;
 
-	}*/
+	printf("%d",linkedListSize);
+	for (i = 1; i <= linkedListSize;i++) // loop through every node where i=1 is the first node
+	{
+		chNode *currentNode = nodeById(&g_System,i);
+		printf("Print works");
+
+		printf(currentNode->m_acName);
+
+	}
+
 }
 
 // draw the scene. Called once per frame and should only deal with scene drawing (not updating the simulator)
@@ -378,8 +393,7 @@ void myInit()
 	initSystem(&g_System);
 	parse(g_acFile, parseSection, parseNetwork, parseArc, parsePartition, parseVector);
 
-	// initialise nodelist
-	
+	initList(nodeList,1);
 }
 
 int main(int argc, char* argv[])
