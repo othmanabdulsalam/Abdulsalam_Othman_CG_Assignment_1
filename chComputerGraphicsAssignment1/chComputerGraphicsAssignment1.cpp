@@ -46,7 +46,7 @@ float orange[] = { 1.0f, 0.5f, 0.0f, 1.0f };
 float white[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 // boolean that sets simulation on or off
-bool isSimulation = false;
+bool simulationFlag = false;
 //static chLinkedList* nodeList; // linked list that stores every node
 
 int numberOfNodes = 0;
@@ -200,7 +200,7 @@ float TIME_STEP_DEFAULT = 1.0f;
 
 void isSimulationOn()
 {
-	if (isSimulation)
+	if (simulationFlag)
 	{
 		runSimulation(); // run the simulation
 	}
@@ -287,13 +287,13 @@ void keyboard(unsigned char c, int iXPos, int iYPos)
 		controlToggle(g_Control, csg_uiControlDrawGrid); // toggle the drawing of the grid
 		break;
 	case 'b':
-		if (isSimulation)// if already true then turn false
+		if (simulationFlag)// if already true then turn false
 		{
-			isSimulation = false;
+			simulationFlag = false;
 		}
 		else // if already false then turn true
 		{
-			isSimulation = true;
+			simulationFlag = true;
 		}
 		break;
 	case 27: // If escape key is pressed, exit the program
