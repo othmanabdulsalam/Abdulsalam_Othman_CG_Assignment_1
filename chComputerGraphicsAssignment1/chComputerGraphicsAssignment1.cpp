@@ -274,7 +274,6 @@ void keyboard(unsigned char c, int iXPos, int iYPos)
 	case 27: // If escape key is pressed, exit the program
 		exit(0);
 		break;
-
 	}
 }
 
