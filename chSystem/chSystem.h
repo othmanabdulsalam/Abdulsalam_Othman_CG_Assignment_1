@@ -23,6 +23,9 @@ typedef struct _chNode
 	unsigned int m_uiWorldSystem;
 	char m_acName[64];
 
+	// added fields
+	float resultantForce[4];
+
 } chNode;
 
 typedef struct _chArc

@@ -47,11 +47,11 @@ float white[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 // boolean that sets simulation on or off
 bool isSimulation = false;
-static chLinkedList* nodeList; // linked list that stores every node
+//static chLinkedList* nodeList; // linked list that stores every node
 
 int numberOfNodes = 0;
 
-chLinkedListElement* nodeElement;
+//chLinkedListElement* nodeElement;
 
 // core functions -> reduce to just the ones needed by glut as pointers to functions to fulfill tasks
 void display(); // The rendering function. This is called once for each frame and you should put rendering code here
@@ -87,12 +87,6 @@ void nodeDisplay(chNode *pNode) // function to render a node (called from displa
 
 	// call to function that handles attributes of the node
 	nodeAttributes(pNode,continent, worldSystem,position,name);
-
-	// create elementType out of node
-	//initElement(nodeElement, pNode, 1);
-	
-	// add to the nodeList
-	//pushTail(nodeList,nodeElement);
 
 	numberOfNodes++; // increase count of nodes
 
@@ -214,7 +208,7 @@ void isSimulationOn()
 
 void runSimulation()
 {
-	//int linkedListSize = count(nodeList);
+	//int linkedListSize = count();
 	int i;
 
 	//printf("%d",linkedListSize);
@@ -222,6 +216,7 @@ void runSimulation()
 	for (i = 1; i <= numberOfNodes/*linkedListSize*/;i++) // loop through every node where i=1 is the first node
 	{
 		chNode *currentNode = nodeById(&g_System,i);
+
 
 	}
 
@@ -398,8 +393,6 @@ void myInit()
 	// initialise the data system and load the data file
 	initSystem(&g_System);
 	parse(g_acFile, parseSection, parseNetwork, parseArc, parsePartition, parseVector);
-
-	initList(nodeList,1);
 }
 
 int main(int argc, char* argv[])
