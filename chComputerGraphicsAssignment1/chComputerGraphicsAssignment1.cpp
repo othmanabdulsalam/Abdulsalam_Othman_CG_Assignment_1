@@ -48,6 +48,9 @@ float white[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 // boolean that sets simulation on or off
 bool isSimulation = false;
 static chLinkedList* nodeList; // linked list that stores every node
+
+int numberOfNodes = 0;
+
 chLinkedListElement* nodeElement;
 
 // core functions -> reduce to just the ones needed by glut as pointers to functions to fulfill tasks
@@ -86,10 +89,12 @@ void nodeDisplay(chNode *pNode) // function to render a node (called from displa
 	nodeAttributes(pNode,continent, worldSystem,position,name);
 
 	// create elementType out of node
-	initElement(nodeElement, pNode, 1);
+	//initElement(nodeElement, pNode, 1);
 	
 	// add to the nodeList
-	pushTail(nodeList,nodeElement);
+	//pushTail(nodeList,nodeElement);
+
+	numberOfNodes++; // increase count of nodes
 
 	glPopMatrix();
 	glPopAttrib();
@@ -209,14 +214,13 @@ void isSimulationOn()
 
 void runSimulation()
 {
-	int linkedListSize = count(nodeList);
+	//int linkedListSize = count(nodeList);
 	int i;
 
-	printf("%d",linkedListSize);
-	for (i = 1; i <= linkedListSize;i++) // loop through every node where i=1 is the first node
+	//printf("%d",linkedListSize);
+	for (i = 1; i <= numberOfNodes/*linkedListSize*/;i++) // loop through every node where i=1 is the first node
 	{
 		chNode *currentNode = nodeById(&g_System,i);
-		printf("Print works");
 
 		printf(currentNode->m_acName);
 
