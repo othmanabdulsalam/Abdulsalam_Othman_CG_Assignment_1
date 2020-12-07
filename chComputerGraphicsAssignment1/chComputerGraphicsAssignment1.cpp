@@ -213,12 +213,15 @@ void runSimulation()
 
 	//printf("%d",linkedListSize);
 
+	// for loop that will reset the resultantForce of node to 0
 	for (i = 1; i <= numberOfNodes/*linkedListSize*/;i++) // loop through every node where i=1 is the first node
 	{
 		chNode *currentNode = nodeById(&g_System,i);
 
-
+		*currentNode->resultantForce = 0; // reset the resultant force to equal 0
 	}
+
+	// loop through each arc and get the relevant information for the simulation
 
 }
 
