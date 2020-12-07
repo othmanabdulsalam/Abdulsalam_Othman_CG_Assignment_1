@@ -195,7 +195,7 @@ chLinkedList nodeList; // linked list that stores every node
 
 void isSimulationOn()
 {
-	if (isSimulationOn)
+	if (isSimulation)
 	{
 		runSimulation(); // run the simulation
 	}
@@ -203,7 +203,10 @@ void isSimulationOn()
 
 void runSimulation()
 {
+	/*for (i = 0;)
+	{
 
+	}*/
 }
 
 // draw the scene. Called once per frame and should only deal with scene drawing (not updating the simulator)
@@ -232,9 +235,8 @@ void idle()
 	controlChangeResetAll(g_Control); // re-set the update status for all of the control flags
 	camProcessInput(g_Input, g_Camera); // update the camera pos/ori based on changes since last render
 	camResetViewportChanged(g_Camera); // re-set the camera's viwport changed flag after all events have been processed
-	isSimulationOn(); // check status of simulation boolean value
 	glutPostRedisplay();// ask glut to update the screen
-
+	isSimulationOn(); // check status of simulation boolean value
 
 }
 
@@ -376,8 +378,8 @@ void myInit()
 	initSystem(&g_System);
 	parse(g_acFile, parseSection, parseNetwork, parseArc, parsePartition, parseVector);
 
-	// initialise list
-	initList(nodeList,);
+	// initialise nodelist
+	
 }
 
 int main(int argc, char* argv[])

@@ -23,8 +23,6 @@ typedef struct _chNode
 	unsigned int m_uiWorldSystem;
 	char m_acName[64];
 
-	// simulation related fields
-
 } chNode;
 
 typedef struct _chArc
@@ -33,8 +31,6 @@ typedef struct _chArc
 	chNode *m_pNode1;
 	float m_fSpringCoef;
 	float m_fIdealLen;
-
-	// simulation related fields
 
 } chArc;
 
