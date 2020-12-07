@@ -46,7 +46,7 @@ float orange[] = { 1.0f, 0.5f, 0.0f, 1.0f };
 float white[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 // boolean that sets simulation on or off
-bool isSimulationOn = false;
+bool isSimulation = false;
 
 
 // core functions -> reduce to just the ones needed by glut as pointers to functions to fulfill tasks
@@ -66,6 +66,8 @@ void nodeDisplay(chNode *pNode); // callled by the display function to draw node
 void arcDisplay(chArc *pArc); // called by the display function to draw arcs
 void buildGrid(); // 
 void nodeAttributes(chNode *pNode, unsigned int continent, unsigned int worldSystem, float* position, char* name);
+void isSimulationOn();// Function for handling whether simulation should run or not
+void runSimulation(); // Function for running the simulation
 
 void nodeDisplay(chNode *pNode) // function to render a node (called from display())
 {
@@ -140,12 +142,7 @@ void nodeAttributes(chNode* pNode, unsigned int continent, unsigned int worldSys
 	case 1: // first world is cone
 		glRotatef(270, 1.0, 0.0, 0.0); // rotate so cone points upwards
 
-		glutSolidCone(mathsDimensionOfCubeFromVolume(pNode->m_fMass)/3, mathsDimensionOfCubeFromVolume(pNode->m_fMass), 15, 15);
-
-		/* CODE USED TO TEST WHY BASE FOR CONES AND CYLINDER DOES NOT APPEAR */
-		//glutSolidCone(10,10.5,30,30);
-		//gluCylinder(gluNewQuadric(), 0, 10, 10.5, 30, 30);
-		//glutSolidCone(10, mathsDimensionOfCubeFromVolume(pNode->m_fMass), 50, 50);
+		glutSolidCone(mathsDimensionOfCubeFromVolume(pNode->m_fMass) / 3, mathsDimensionOfCubeFromVolume(pNode->m_fMass), 15, 15);
 		
 		// return rotation so text isnt also rotated
 		glRotatef(-270, 1.0, 0.0, 0.0);
@@ -187,6 +184,21 @@ void arcDisplay(chArc *pArc) // function to render an arc (called from display()
 	glEnd();
 }
 
+
+
+void isSimulationOn()
+{
+	if (isSimulationOn)
+	{
+		runSimulation(); // run the simulation
+	}
+}
+
+void runSimulation()
+{
+
+}
+
 // draw the scene. Called once per frame and should only deal with scene drawing (not updating the simulator)
 void display() 
 {
@@ -213,7 +225,10 @@ void idle()
 	controlChangeResetAll(g_Control); // re-set the update status for all of the control flags
 	camProcessInput(g_Input, g_Camera); // update the camera pos/ori based on changes since last render
 	camResetViewportChanged(g_Camera); // re-set the camera's viwport changed flag after all events have been processed
+	isSimulationOn(); // check status of simulation boolean value
 	glutPostRedisplay();// ask glut to update the screen
+
+
 }
 
 // respond to a change in window position or shape
@@ -245,6 +260,16 @@ void keyboard(unsigned char c, int iXPos, int iYPos)
 		break;
 	case 'g':
 		controlToggle(g_Control, csg_uiControlDrawGrid); // toggle the drawing of the grid
+		break;
+	case 'b':
+		if (isSimulation)// if already true then turn false
+		{
+			isSimulation = false;
+		}
+		else // if already false then turn true
+		{
+			isSimulation = true;
+		}
 		break;
 	case 27: // If escape key is pressed, exit the program
 		exit(0);
