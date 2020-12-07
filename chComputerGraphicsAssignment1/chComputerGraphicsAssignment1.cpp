@@ -218,15 +218,17 @@ void runSimulation()
 	int i;
 
 	//printf("%d",linkedListSize);
+
 	for (i = 1; i <= numberOfNodes/*linkedListSize*/;i++) // loop through every node where i=1 is the first node
 	{
 		chNode *currentNode = nodeById(&g_System,i);
 
-		printf(currentNode->m_acName);
-
 	}
 
 }
+
+
+
 
 // draw the scene. Called once per frame and should only deal with scene drawing (not updating the simulator)
 void display() 
