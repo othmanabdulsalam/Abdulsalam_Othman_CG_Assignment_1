@@ -35,6 +35,10 @@ typedef struct _chArc
 	float m_fSpringCoef;
 	float m_fIdealLen;
 
+
+	// added fields
+
+
 } chArc;
 
 const static unsigned int csg_uiNode = 1;
