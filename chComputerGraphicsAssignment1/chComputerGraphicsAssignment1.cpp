@@ -205,6 +205,7 @@ void isSimulationOn()
 	if (simulationFlag)
 	{
 		runSimulation(); // run the simulation
+		//printf("Running");
 	}
 }
 
@@ -243,10 +244,10 @@ void runSimulation()
 
 float coulombLaw(chNode* targetNode, float forceX, float forceY, float forceZ)
 {
-	int i;
-	for (i = 1; i <= numberOfNodes; i++) // loop through every node where i=1 is the first node
+	int j;
+	for (j = 1; j <= numberOfNodes; j++) // loop through every node where i=1 is the first node
 	{
-		chNode* node = nodeById(&g_System, i);
+		chNode* node = nodeById(&g_System, j);
 
 		// check the current node is not the target node
 		if (node != targetNode)
@@ -284,12 +285,12 @@ float coulombLaw(chNode* targetNode, float forceX, float forceY, float forceZ)
 
 void hookeLaw(chNode* targetNode, float forceX, float forceY, float forceZ)
 {
-	int i;
+	int k;
 
 	// need to set field that holds the adjacent nodes
 
 
-	for (i = 1; i <= numberOfNodes; i++) // loop through every adjacent node to the target node where i=1 is the first node
+	for (k = 1; k <= numberOfNodes; k++) // loop through every adjacent node to the target node where i=1 is the first node
 	{
 	}
 }
@@ -355,7 +356,7 @@ void keyboard(unsigned char c, int iXPos, int iYPos)
 	case 'g':
 		controlToggle(g_Control, csg_uiControlDrawGrid); // toggle the drawing of the grid
 		break;
-	case 'b':
+	case 'r':
 		if (simulationFlag)// if already true then turn false
 		{
 			simulationFlag = false;
