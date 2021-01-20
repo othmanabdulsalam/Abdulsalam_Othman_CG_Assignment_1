@@ -200,9 +200,7 @@ void isSimulationOn()
 {
 	if (simulationFlag)
 	{
-		//runSimulation(); // run the simulation
-		//printf("Running");
-		printf(": ");
+		runSimulation(); // run the simulation
 	}
 }
 
@@ -210,42 +208,31 @@ void runSimulation()
 {
 	int i;
 
-	// for loop that will reset the resultantForce of all nodes to 0
-	//for (i = 1; i <= ;i++) // loop through every node where i=1 is the first node
-	//{
-	//	chNode *targetNode = nodeById(&g_System,i);
-
-	//	*targetNode->resultantForce = 0; // reset the resultant force to equal 0
-	//	
-
-	//	// forces for each direction
-	//	float forceX = 0;
-	//	float forceY = 0;
-	//	float forceZ = 0;
-
-	//	// run coulumbs law on the node
-	//	forceX, forceY, forceZ += coulombLaw(targetNode, forceX, forceY, forceZ);
-
-
-	//	// run hooke's law on the node
-	//	forceX, forceY, forceZ += hookeLaw(targetNode, forceX, forceY, forceZ);
-
-	//	printf("i");
-
-	//}
-
-	// loop through each arc and get the relevant information for the simulation
-
-	//for (i = 1; i <= numberOfArcs; i++)
-	//{
-	//	// calculate direction vector between the 2 nodes of the arc
-	//}
-
-
+	// loop through every node, reseting the force of each to 0
+	visitNodes(&g_System, resetForce);
+	
+	visitArcs(&g_System, applyForces);
 
 
 
 }
+
+
+void resetForce(chNode *targetNode)
+{
+	// resets the force of the node to 0
+	*targetNode->resultantForce = 0;
+}
+
+void applyForces(chArc* pArc)
+{
+	// node0 indicates start node, node1 indicates end node
+	chNode* m_pNode0 = pArc->m_pNode0;
+	chNode* m_pNode1 = pArc->m_pNode1;
+
+
+}
+
 
 float coulombLaw(chNode* targetNode, float forceX, float forceY, float forceZ)
 {
