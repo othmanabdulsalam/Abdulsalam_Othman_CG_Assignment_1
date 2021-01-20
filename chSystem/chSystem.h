@@ -26,6 +26,7 @@ typedef struct _chNode
 	// added fields
 	float resultantForce[4];
 
+	// store adjacent nodes
 } chNode;
 
 typedef struct _chArc

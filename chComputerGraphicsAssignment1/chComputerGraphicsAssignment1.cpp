@@ -47,11 +47,7 @@ float white[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 // boolean that sets simulation on or off
 bool simulationFlag = false;
-//static chLinkedList* nodeList; // linked list that stores every node
 
-int numberOfNodes = 0;
-
-//chLinkedListElement* nodeElement;
 
 // core functions -> reduce to just the ones needed by glut as pointers to functions to fulfill tasks
 void display(); // The rendering function. This is called once for each frame and you should put rendering code here
@@ -73,7 +69,7 @@ void nodeAttributes(chNode *pNode, unsigned int continent, unsigned int worldSys
 void isSimulationOn();// Function for handling whether simulation should run or not
 void runSimulation(); // Function for running the simulation
 float coulombLaw(chNode *targetNode, float forceX, float forceY, float forceZ); // Function that applies Coulomb's law
-void hookeLaw(chNode* targetNode, float forceX, float forceY, float forceZ); // Function that applies Hooke's law
+float hookeLaw(chNode* targetNode, float forceX, float forceY, float forceZ); // Function that applies Hooke's law
 
 void nodeDisplay(chNode *pNode) // function to render a node (called from display())
 {
@@ -89,8 +85,6 @@ void nodeDisplay(chNode *pNode) // function to render a node (called from displa
 
 	// call to function that handles attributes of the node
 	nodeAttributes(pNode,continent, worldSystem,position,name);
-
-	numberOfNodes++; // increase count of nodes
 
 	glPopMatrix();
 	glPopAttrib();
@@ -176,7 +170,7 @@ void arcDisplay(chArc *pArc) // function to render an arc (called from display()
 	chNode* m_pNode0 = pArc->m_pNode0;
 	chNode* m_pNode1 = pArc->m_pNode1;
 
-	// floats for the two end points of the end
+	// floats for the two end points of the arc
 
 	float* arcPos0 = m_pNode0->m_afPosition;
 	float* arcPos1 = m_pNode1->m_afPosition;
@@ -190,6 +184,8 @@ void arcDisplay(chArc *pArc) // function to render an arc (called from display()
 		glColor3f(0.0f, 1.0f, 0.0f);
 		glVertex3f(arcPos1[0], arcPos1[1], arcPos1[2]);
 	glEnd();
+
+
 }
 
 
@@ -204,95 +200,101 @@ void isSimulationOn()
 {
 	if (simulationFlag)
 	{
-		runSimulation(); // run the simulation
+		//runSimulation(); // run the simulation
 		//printf("Running");
+		printf(": ");
 	}
 }
 
 void runSimulation()
 {
-	//int linkedListSize = count();
 	int i;
 
-	//printf("%d",linkedListSize);
+	// for loop that will reset the resultantForce of all nodes to 0
+	//for (i = 1; i <= ;i++) // loop through every node where i=1 is the first node
+	//{
+	//	chNode *targetNode = nodeById(&g_System,i);
 
-	// for loop that will reset the resultantForce of node to 0
-	for (i = 1; i <= numberOfNodes;i++) // loop through every node where i=1 is the first node
-	{
-		chNode *targetNode = nodeById(&g_System,i);
+	//	*targetNode->resultantForce = 0; // reset the resultant force to equal 0
+	//	
 
-		*targetNode->resultantForce = 0; // reset the resultant force to equal 0
+	//	// forces for each direction
+	//	float forceX = 0;
+	//	float forceY = 0;
+	//	float forceZ = 0;
 
-		float forceX = 0;
-		float forceY = 0;
-		float forceZ = 0;
-
-		// run coulumbs law on the node
-		forceX, forceY, forceZ = coulombLaw(targetNode, forceX, forceY, forceZ);
-
-
-		// run hooke's law on the node
-		hookeLaw(targetNode, forceX, forceY, forceZ);
+	//	// run coulumbs law on the node
+	//	forceX, forceY, forceZ += coulombLaw(targetNode, forceX, forceY, forceZ);
 
 
+	//	// run hooke's law on the node
+	//	forceX, forceY, forceZ += hookeLaw(targetNode, forceX, forceY, forceZ);
 
-	}
+	//	printf("i");
+
+	//}
 
 	// loop through each arc and get the relevant information for the simulation
+
+	//for (i = 1; i <= numberOfArcs; i++)
+	//{
+	//	// calculate direction vector between the 2 nodes of the arc
+	//}
+
+
+
+
 
 }
 
 float coulombLaw(chNode* targetNode, float forceX, float forceY, float forceZ)
 {
-	int j;
-	for (j = 1; j <= numberOfNodes; j++) // loop through every node where i=1 is the first node
-	{
-		chNode* node = nodeById(&g_System, j);
+	//int j;
+	//for (j = 1; j <= numberOfNodes; j++) // loop through every node where i=1 is the first node
+	//{
+	//	chNode* node = nodeById(&g_System, j);
 
-		// check the current node is not the target node
-		if (node != targetNode)
-		{
-			float dx = targetNode->m_afPosition[0] - node->m_afPosition[0];
-			float dy = targetNode->m_afPosition[1] - node->m_afPosition[1];
-			float dz = targetNode->m_afPosition[2] - node->m_afPosition[2];
-
-
-			// calculate total distance based off the three values squared a
-
-			float distance = sqrt(dx * dx + dy * dy + dz *dz);
-
-			float xUnit = dx / distance;
-			float yUnit = dy / distance;
-			float zUnit = dz / distance;
-
-			// calculate the coulumb force based on the 
-
-			float coulombForceX = COULOMB_CONSTANT_DEFAULT * (targetNode->m_fMass * node->m_fMass) / pow(distance,2.0f) * xUnit;
-			float coulombForceY = COULOMB_CONSTANT_DEFAULT* (targetNode->m_fMass * node->m_fMass) / pow(distance, 2.0f) * yUnit;
-			float coulombForceZ = COULOMB_CONSTANT_DEFAULT * (targetNode->m_fMass * node->m_fMass) / pow(distance, 2.0f) * zUnit;
+	//	// check the current node is not the target node
+	//	if (node != targetNode)
+	//	{
+	//		float dx = targetNode->m_afPosition[0] - node->m_afPosition[0];
+	//		float dy = targetNode->m_afPosition[1] - node->m_afPosition[1];
+	//		float dz = targetNode->m_afPosition[2] - node->m_afPosition[2];
 
 
-			// add the coulumb forces to the total forces in each direction
+	//		// calculate total distance based off the three values squared a
 
-			forceX += coulombForceX;
-			forceY += coulombForceY;
-			forceZ += coulombForceZ;
-		}
-	}
+	//		float distance = sqrt(dx * dx + dy * dy + dz *dz);
 
-	return forceX, forceY, forceZ;
+	//		float xUnit = dx / distance;
+	//		float yUnit = dy / distance;
+	//		float zUnit = dz / distance;
+
+	//		// calculate the coulumb force based on the 
+
+	//		float coulombForceX = COULOMB_CONSTANT_DEFAULT * (targetNode->m_fMass * node->m_fMass) / pow(distance,2.0f) * xUnit;
+	//		float coulombForceY = COULOMB_CONSTANT_DEFAULT* (targetNode->m_fMass * node->m_fMass) / pow(distance, 2.0f) * yUnit;
+	//		float coulombForceZ = COULOMB_CONSTANT_DEFAULT * (targetNode->m_fMass * node->m_fMass) / pow(distance, 2.0f) * zUnit;
+
+
+	//		// add the coulumb forces to the total forces in each direction
+
+	//		forceX += coulombForceX;
+	//		forceY += coulombForceY;
+	//		forceZ += coulombForceZ;
+	//	}
+	//}
+
+	//return forceX, forceY, forceZ;
 }
 
-void hookeLaw(chNode* targetNode, float forceX, float forceY, float forceZ)
+float hookeLaw(chNode* targetNode, float forceX, float forceY, float forceZ)
 {
 	int k;
 
-	// need to set field that holds the adjacent nodes
 
 
-	for (k = 1; k <= numberOfNodes; k++) // loop through every adjacent node to the target node where i=1 is the first node
-	{
-	}
+	return forceX, forceY, forceZ;
 }
 
 // draw the scene. Called once per frame and should only deal with scene drawing (not updating the simulator)
