@@ -234,6 +234,7 @@ void resetResultantForce(chNode *targetNode)
 
 static float COULOMB_CONSTANT_DEFAULT = 20.0f;
 static float SPRING_CONSTANT_DEFAULT = 0.1f;
+static float DAMPING_CONSTANT_DEFAULT = 0.2f;
 float power = 2.0f;
 float restingLength = 1.0f;
 
@@ -349,7 +350,7 @@ void nodeBehaviour(chNode* targetNode)
 	for (i = 0; i < 3; i++)
 	{
 		acceleration[i] = targetNode->resultantForce[i] / targetNode->m_fMass; // calculate acceleration
-		velocity[i] = targetNode->velocity[i] + acceleration[i] * timeSinceLastFrame; // calculate velocity
+		velocity[i] = (targetNode->velocity[i] + acceleration[i] * timeSinceLastFrame) * DAMPING_CONSTANT_DEFAULT; // calculate velocity
 		motion[i] = (velocity[i] * timeSinceLastFrame) * (1.0f/2.0f)* (acceleration[i] * (timeSinceLastFrame * timeSinceLastFrame)); // calculate motion
 
 		// add motion to the node by increasing its position values
@@ -359,7 +360,7 @@ void nodeBehaviour(chNode* targetNode)
 		velocity[i] = motion[i] / timeSinceLastFrame;
 
 		// apply damping
-		velocity[i] = velocity[i] * (1.0 - 0.2);
+		velocity[i] = velocity[i] * (1.0 - DAMPING_CONSTANT_DEFAULT);
 
 		targetNode->velocity[i] = velocity[i];
 	}
