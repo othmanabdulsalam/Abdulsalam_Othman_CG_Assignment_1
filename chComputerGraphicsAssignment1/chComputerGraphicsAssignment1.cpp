@@ -239,8 +239,8 @@ void resetResultantForce(chNode *targetNode)
 static float COULOMB_CONSTANT_DEFAULT = 50.0f;
 static float SPRING_CONSTANT_DEFAULT = 0.1f;
 static float DAMPING_CONSTANT_DEFAULT = 0.2f;
-float power = 2.0f;
-float restingLength = 1.0f;
+static float POWER_2 = 2.0f;
+float restingLength = 3.0f;
 static float TIME_SINCE_LAST_FRAME = 1.0f / 60.0f;
 
 void applyForces(chArc* pArc)
@@ -273,9 +273,9 @@ void applyForces(chArc* pArc)
 	float yUnit = dy / distance;
 	float zUnit = dz / distance;
 
-	float coulumbForceX = COULOMB_CONSTANT_DEFAULT * (m_pNode0->m_fMass * m_pNode1->m_fMass) / pow(distance, power) * xUnit;
-	float coulumbForceY = COULOMB_CONSTANT_DEFAULT * (m_pNode0->m_fMass * m_pNode1->m_fMass) / pow(distance, power) * yUnit;
-	float coulumbForceZ = COULOMB_CONSTANT_DEFAULT * (m_pNode0->m_fMass * m_pNode1->m_fMass) / pow(distance, power) * zUnit;
+	float coulumbForceX = COULOMB_CONSTANT_DEFAULT * (m_pNode0->m_fMass * m_pNode1->m_fMass) / pow(distance, POWER_2) * xUnit;
+	float coulumbForceY = COULOMB_CONSTANT_DEFAULT * (m_pNode0->m_fMass * m_pNode1->m_fMass) / pow(distance, POWER_2) * yUnit;
+	float coulumbForceZ = COULOMB_CONSTANT_DEFAULT * (m_pNode0->m_fMass * m_pNode1->m_fMass) / pow(distance, POWER_2) * zUnit;
 
 	// adding the forces to each nodes resultant force
 	m_pNode0->resultantForce[0] += coulumbForceX;
@@ -293,10 +293,10 @@ void applyForces(chArc* pArc)
 	float extension = distance - restingLength;
 
 	// calculate the spring force : Force = extension * coefficient of restitution
-	float springForce = extension * pArc->m_fSpringCoef;
+	//float springForce = extension * pArc->m_fSpringCoef;
 
-	//// vector forces for each node: +- force * directionVector
-	//// one node has a +ve force and the other a -ve due to 3rd newton law
+	// vector forces for each node: +- force * directionVector
+	// one node has a +ve force and the other a -ve due to 3rd newton law
 
 	//float vectorForce0[3];
 	//float vectorForce1[3];
@@ -321,7 +321,9 @@ void applyForces(chArc* pArc)
 
 	/* Alternative approach */
 
-	float d = distance - springForce;
+
+
+	float d = distance - restingLength;
 
 	float hookeForceX = -1.0f * SPRING_CONSTANT_DEFAULT * d * xUnit;
 	float hookeForceY = -1.0f * SPRING_CONSTANT_DEFAULT * d * yUnit;
