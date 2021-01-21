@@ -209,20 +209,14 @@ void isSimulationOn()
 
 void runSimulation()
 {
-	int i;
-
 	// loop through every node, reseting the force of each to 0
 	visitNodes(&g_System, resetResultantForce);
 	
 	// loop through every arc, calculating the spring behaviour between the 2 nodes forming the arc
 	visitArcs(&g_System, applyForces);
 
-
 	// loop through every node, moving them in response to the forces applied to them
 	visitNodes(&g_System, nodeBehaviour);
-
-	// loop through the nodes applying the movement to them
-	//visitNodes(&g_System, applyMovement);
 
 }
 
@@ -238,14 +232,13 @@ void resetResultantForce(chNode *targetNode)
 }
 
 
-static float COULOMB_CONSTANT_DEFAULT = 500.0f;
+static float COULOMB_CONSTANT_DEFAULT = 20.0f;
+static float SPRING_CONSTANT_DEFAULT = 0.1f;
 float power = 2.0f;
 float restingLength = 1.0f;
 
 void applyForces(chArc* pArc)
 {
-	/* Hooke's Law */
-
 	// node0 indicates start node, node1 indicates end node
 	chNode* m_pNode0 = pArc->m_pNode0;
 	chNode* m_pNode1 = pArc->m_pNode1;
@@ -254,26 +247,11 @@ void applyForces(chArc* pArc)
 	float directionVector[3];
 	float directionVectorSquared[3];
 
-	float directionVectorMagnitude;
-
-	// extension = current length - resting length
-	float extension = pArc->m_fIdealLen - restingLength;
-
-	// calculate the spring force vector : Force = extension * coefficient of restitution
-	float springForce = extension * pArc->m_fSpringCoef;
-
-	// vector forces for each node: +- force * directionVector
-	// one node has a +ve force and the other a -ve due to 3rd newton law
-
-	float vectorForce0[3];
-	float vectorForce1[3];
-
-
 	int i;
 
 	for (i = 0; i < 3; i++)
 	{
-		directionVector[i] = m_pNode1->m_afPosition[i] - m_pNode0->m_afPosition[i];
+		directionVector[i] = m_pNode0->m_afPosition[i] - m_pNode1->m_afPosition[i];
 		directionVectorSquared[i] = directionVector[i] * directionVector[i];
 	}
 
@@ -298,27 +276,59 @@ void applyForces(chArc* pArc)
 	m_pNode0->resultantForce[2] += coulumbForceZ;
 
 
+	/* End of Coulumb's Law */
+
 	/* Hooke's Law */
+
+	float directionVectorMagnitude;
+
+	// extension = current length - resting length
+	float extension = pArc->m_fIdealLen - restingLength;
+
+	// calculate the spring force : Force = extension * coefficient of restitution
+	float springForce = extension * pArc->m_fSpringCoef;
+
+	// vector forces for each node: +- force * directionVector
+	// one node has a +ve force and the other a -ve due to 3rd newton law
+
+	float vectorForce0[3];
+	float vectorForce1[3];
 
 	// calculate magnitude 
 
 	directionVectorMagnitude = directionVectorSquared[0] + directionVectorSquared[1] + directionVectorSquared[2];
 	directionVectorMagnitude = sqrtf(directionVectorMagnitude);
-
-	for (i = 0; i < 3; i++)
+	int j;
+	for (j = 0; j < 3; j++)
 	{
 		// normalising the vector
-		directionVector[i] = directionVector[i] / directionVectorMagnitude;
+		directionVector[j] = directionVector[j] / directionVectorMagnitude;
 
-		vectorForce0[i] = directionVector[i] * springForce;
-		vectorForce1[i] = -(directionVector[i] * springForce);
-
+		vectorForce0[j] = directionVector[j] * springForce;
+		vectorForce1[j] = -1.0f * (directionVector[j] * springForce);
 
 		// adding the forces to each nodes resultant force
-		m_pNode0->resultantForce[i] += vectorForce0[i];
-		m_pNode1->resultantForce[i] += vectorForce1[i];
+		m_pNode0->resultantForce[j] += vectorForce0[j];
+		m_pNode1->resultantForce[j] += vectorForce1[j];
 	}
 
+	//float d = distance - springForce;
+
+	//float hookeForceX = -1.0f * SPRING_CONSTANT_DEFAULT * d * xUnit;
+	//float hookeForceY = -1.0f * SPRING_CONSTANT_DEFAULT * d * yUnit;
+	//float hookeForceZ = -1.0f * SPRING_CONSTANT_DEFAULT * d * zUnit;
+
+
+	//// adding the forces to each nodes resultant force
+	//m_pNode0->resultantForce[0] += hookeForceX;
+	//m_pNode0->resultantForce[1] += hookeForceY;
+	//m_pNode0->resultantForce[2] += hookeForceZ;
+
+	//m_pNode1->resultantForce[0] += hookeForceX;
+	//m_pNode1->resultantForce[1] += hookeForceY;
+	//m_pNode1->resultantForce[2] += hookeForceZ;
+
+	/* End of Hooke's Law */
 }
 
 void nodeBehaviour(chNode* targetNode)
@@ -345,11 +355,13 @@ void nodeBehaviour(chNode* targetNode)
 		// add motion to the node by increasing its position values
 		targetNode->m_afPosition[i] += motion[i];
 
-		// calculate new velocity: velocity = displacement \ motion /time
+		// calculate new velocity: velocity = displacement /time
 		velocity[i] = motion[i] / timeSinceLastFrame;
 
 		// apply damping
-		targetNode->velocity[i] = velocity[i] * (1.0 - 0.2);
+		velocity[i] = velocity[i] * (1.0 - 0.2);
+
+		targetNode->velocity[i] = velocity[i];
 	}
 
 
