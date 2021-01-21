@@ -222,7 +222,7 @@ void runSimulation()
 	visitNodes(&g_System, nodeBehaviour);
 
 	// loop through the nodes applying the movement to them
-	visitNodes(&g_System, applyMovement);
+	//visitNodes(&g_System, applyMovement);
 
 }
 
@@ -340,14 +340,10 @@ void nodeBehaviour(chNode* targetNode)
 	{
 		acceleration[i] = targetNode->resultantForce[i] / targetNode->m_fMass; // calculate acceleration
 		velocity[i] = targetNode->velocity[i] + acceleration[i] * timeSinceLastFrame; // calculate velocity
-		motion[i] = (velocity[i] * timeSinceLastFrame) * 0.5 * (acceleration[i] * (timeSinceLastFrame * timeSinceLastFrame)); // calculate motion
+		motion[i] = (velocity[i] * timeSinceLastFrame) * (1.0f/2.0f)* (acceleration[i] * (timeSinceLastFrame * timeSinceLastFrame)); // calculate motion
 
 		// add motion to the node by increasing its position values
-		//targetNode->m_afPosition[i] += motion[i];
-
-
-		// set target location for the node to travel towards
-		targetNode->targetLocation[i] = targetNode->m_afPosition[i] + motion[i];
+		targetNode->m_afPosition[i] += motion[i];
 
 		// calculate new velocity: velocity = displacement \ motion /time
 		velocity[i] = motion[i] / timeSinceLastFrame;
@@ -359,28 +355,6 @@ void nodeBehaviour(chNode* targetNode)
 
 
 }
-
-
-void applyMovement(chNode* targetNode)
-{
-	// calculate distance from current to target node, move node based on the current position + velocity
-
-
-	float distance[3];
-	float travelDistance[3];
-	int i;
-
-	for (i = 0; i < 3; i++)
-	{
-		distance[i] = targetNode->m_afPosition[i] - targetNode->targetLocation[i];
-
-		travelDistance[i] = distance[i] / targetNode->acceleration[i];
-
-		targetNode->m_afPosition[i] += travelDistance[i];
-	}
-	
-}
-
 
 
 // mouse callback function
