@@ -242,7 +242,7 @@ void resetResultantForce(chNode *targetNode)
 static float COULOMB_CONSTANT_DEFAULT = 50.0f;
 static float SPRING_CONSTANT_DEFAULT = 1.0f;
 static float DAMPING_CONSTANT_DEFAULT = 0.1f;
-static float RESTING_LENGTH = 1.0f;
+static float RESTING_LENGTH = 3.0f;
 static float TIME_SINCE_LAST_FRAME = 1.0f / 60.0f;
 
 static float POWER_2 = 2.0f;
@@ -363,9 +363,9 @@ void nodeBehaviour(chNode* targetNode)
 
 
 	// 3c: set new position of the node. this makes the nodes disappear and needs to be fixed somehow
-	targetNode->m_afPosition[0] = x;
-	targetNode->m_afPosition[1] = y;
-	targetNode->m_afPosition[2] = z;
+	targetNode->m_afPosition[0] += x;
+	targetNode->m_afPosition[1] += y;
+	targetNode->m_afPosition[2] += z;
 
 	//nodeMove(targetNode);
 
