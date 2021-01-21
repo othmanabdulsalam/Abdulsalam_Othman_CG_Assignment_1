@@ -236,7 +236,7 @@ void resetResultantForce(chNode *targetNode)
 }
 
 // constants used in the simulation
-static float COULOMB_CONSTANT_DEFAULT = 0.5f;
+static float COULOMB_CONSTANT_DEFAULT = 500.0f;
 static float SPRING_CONSTANT_DEFAULT = 1.0f;
 static float DAMPING_CONSTANT_DEFAULT = 0.1f;
 static float RESTING_LENGTH = 3.0f;
@@ -381,26 +381,29 @@ void nodeBehaviour(chNode* targetNode)
 	float accelerationZ = targetNode->resultantForce[2] / targetNode->m_fMass;
 
 
-	float velocityX = (targetNode->velocity[0] + TIME_SINCE_LAST_FRAME * accelerationX) * DAMPING_CONSTANT_DEFAULT;
-	float velocityY = (targetNode->velocity[1] + TIME_SINCE_LAST_FRAME * accelerationY) * DAMPING_CONSTANT_DEFAULT;
-	float velocityZ = (targetNode->velocity[2] + TIME_SINCE_LAST_FRAME * accelerationZ) * DAMPING_CONSTANT_DEFAULT;
+	float velocityX = (targetNode->velocity[0] + TIME_SINCE_LAST_FRAME * accelerationX) *DAMPING_CONSTANT_DEFAULT;
+	float velocityY = (targetNode->velocity[1] + TIME_SINCE_LAST_FRAME * accelerationY) *DAMPING_CONSTANT_DEFAULT;
+	float velocityZ = (targetNode->velocity[2] + TIME_SINCE_LAST_FRAME * accelerationZ) *DAMPING_CONSTANT_DEFAULT;
 
 	float x = targetNode->m_afPosition[0] + TIME_SINCE_LAST_FRAME * targetNode->velocity[0] + accelerationX * pow(TIME_SINCE_LAST_FRAME, POWER_2) / 2.0f;
 	float y = targetNode->m_afPosition[1] + TIME_SINCE_LAST_FRAME * targetNode->velocity[1] + accelerationX * pow(TIME_SINCE_LAST_FRAME, POWER_2) / 2.0f;
 	float z = targetNode->m_afPosition[2] + TIME_SINCE_LAST_FRAME * targetNode->velocity[2] + accelerationX * pow(TIME_SINCE_LAST_FRAME, POWER_2) / 2.0f;
 
-	targetNode->m_afPosition[0] += x;
-	targetNode->m_afPosition[1] += y;
-	targetNode->m_afPosition[2] += z;
+
+	// set new position of the node
+	targetNode->m_afPosition[0] = x;
+	targetNode->m_afPosition[1] = y;
+	targetNode->m_afPosition[2] = z;
 
 
+	// set new velocity of the node
 	targetNode->velocity[0] = velocityX;
 	targetNode->velocity[1] = velocityY;
 	targetNode->velocity[2] = velocityZ;
 
-	targetNode->resultantForce[0] = 0.0f;
+	/*targetNode->resultantForce[0] = 0.0f;
 	targetNode->resultantForce[1] = 0.0f;
-	targetNode->resultantForce[2] = 0.0f;
+	targetNode->resultantForce[2] = 0.0f;*/
 
 }
 
