@@ -75,7 +75,8 @@ void isSimulationOn();// Function for handling whether simulation should run or 
 void runSimulation(); // Function for running the simulation
 void resetResultantForce(chNode* targetNode); // reset the resultant force of the node
 void applyForces(chArc* pArc); // apply spring forces for each of the 2 nodes making up the arc
-void nodeMovement(chNode* targetNode); // apply movement to the node according to the forces applied to it
+void nodeBehaviour(chNode* targetNode); // change the behaviour of the node based off the forces applied to it
+void applyMovement(chNode* targetNode); // apply movement to the node
 
 /* END OF PROTOTYPES*/
 
@@ -218,8 +219,10 @@ void runSimulation()
 
 
 	// loop through every node, moving them in response to the forces applied to them
-	visitNodes(&g_System, nodeMovement);
+	visitNodes(&g_System, nodeBehaviour);
 
+	// loop through the nodes applying the movement to them
+	visitNodes(&g_System, applyMovement);
 
 }
 
@@ -318,7 +321,7 @@ void applyForces(chArc* pArc)
 
 }
 
-void nodeMovement(chNode* targetNode)
+void nodeBehaviour(chNode* targetNode)
 {
 	// acceleration of the node: resultant force / mass of node
 	float acceleration[3];
@@ -340,11 +343,11 @@ void nodeMovement(chNode* targetNode)
 		motion[i] = (velocity[i] * timeSinceLastFrame) * 0.5 * (acceleration[i] * (timeSinceLastFrame * timeSinceLastFrame)); // calculate motion
 
 		// add motion to the node by increasing its position values
-		targetNode->m_afPosition[i] += motion[i];
+		//targetNode->m_afPosition[i] += motion[i];
 
 
 		// set target location for the node to travel towards
-		//targetNode->targetLocation[i] = targetNode->m_afPosition[i] + motion[i];
+		targetNode->targetLocation[i] = targetNode->m_afPosition[i] + motion[i];
 
 		// calculate new velocity: velocity = displacement \ motion /time
 		velocity[i] = motion[i] / timeSinceLastFrame;
@@ -357,14 +360,37 @@ void nodeMovement(chNode* targetNode)
 
 }
 
-// mouse callback function
-void mouseCB(int button, int state, int x, int y)
+
+void applyMovement(chNode* targetNode)
 {
-	if (button == GLUT_RIGHT_BUTTON)
+	// calculate distance from current to target node, move node based on the current position + velocity
+
+
+	float distance[3];
+	float travelDistance[3];
+	int i;
+
+	for (i = 0; i < 3; i++)
 	{
-		glutCreateMenu();
+		distance[i] = targetNode->m_afPosition[i] - targetNode->targetLocation[i];
+
+		travelDistance[i] = distance[i] / targetNode->acceleration[i];
+
+		targetNode->m_afPosition[i] += travelDistance[i];
 	}
+	
 }
+
+
+
+// mouse callback function
+//void mouseCB(int button, int state, int x, int y)
+//{
+//	if (button == GLUT_RIGHT_BUTTON)
+//	{
+//		glutCreateMenu();
+//	}
+//}
 
 
 
