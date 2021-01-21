@@ -238,12 +238,13 @@ void resetResultantForce(chNode *targetNode)
 // constants used in the simulation
 static float COULOMB_CONSTANT_DEFAULT = 0.5f;
 static float SPRING_CONSTANT_DEFAULT = 1.0f;
-static float DAMPING_CONSTANT_DEFAULT = 0.2f;
+static float DAMPING_CONSTANT_DEFAULT = 0.1f;
 static float RESTING_LENGTH = 3.0f;
 static float TIME_SINCE_LAST_FRAME = 1.0f / 60.0f;
 
 static float POWER_2 = 2.0f;
 
+// apply forces on nodes inside the arc
 void applyForces(chArc* pArc)
 {
 	// node0 indicates start node, node1 indicates end node
@@ -281,9 +282,9 @@ void applyForces(chArc* pArc)
 	m_pNode0->resultantForce[1] += coulumbForceY;
 	m_pNode0->resultantForce[2] += coulumbForceZ;
 
-	m_pNode1->resultantForce[0] += coulumbForceX;
+	/*m_pNode1->resultantForce[0] += coulumbForceX;
 	m_pNode1->resultantForce[1] += coulumbForceY;
-	m_pNode1->resultantForce[2] += coulumbForceZ;
+	m_pNode1->resultantForce[2] += coulumbForceZ;*/
 
 	/* End of Coulumb's Law */
 
@@ -301,9 +302,9 @@ void applyForces(chArc* pArc)
 	m_pNode0->resultantForce[1] += hookeForceY;
 	m_pNode0->resultantForce[2] += hookeForceZ;
 
-	m_pNode1->resultantForce[0] += hookeForceX;
+	/*m_pNode1->resultantForce[0] += hookeForceX;
 	m_pNode1->resultantForce[1] += hookeForceY;
-	m_pNode1->resultantForce[2] += hookeForceZ;
+	m_pNode1->resultantForce[2] += hookeForceZ;*/
 
 	/* Alternative approach */
 
@@ -342,35 +343,64 @@ void applyForces(chArc* pArc)
 	/* End of Hooke's Law */
 }
 
+// function that will apply the appropriate behaviour to the nodes
 void nodeBehaviour(chNode* targetNode)
 {
-	// acceleration of the node: resultant force / mass of node
-	float acceleration[3];
+	//// acceleration of the node: resultant force / mass of node
+	//float acceleration[3];
 
-	// velocity of the node: final velocity = initial velocity + (acceleration * time)
-	float velocity[3];
+	//// velocity of the node: final velocity = initial velocity + (acceleration * time)
+	//float velocity[3];
 
-	// motion of node: motion = (velocity * time frame for motion) * 0.5 * (acceleration * time^2)
-	float motion[3];
+	//// motion of node: motion = (velocity * time frame for motion) * 0.5 * (acceleration * time^2)
+	//float motion[3];
 
-	int i;
-	for (i = 0; i < 3; i++)
-	{
-		acceleration[i] = targetNode->resultantForce[i] / targetNode->m_fMass; // calculate acceleration
-		velocity[i] = (targetNode->velocity[i] + acceleration[i] * TIME_SINCE_LAST_FRAME) * DAMPING_CONSTANT_DEFAULT; // calculate velocity
-		motion[i] = (velocity[i] * TIME_SINCE_LAST_FRAME) * (1.0f/2.0f)* (acceleration[i] * (TIME_SINCE_LAST_FRAME * TIME_SINCE_LAST_FRAME)); // calculate motion
+	//int i;
+	//for (i = 0; i < 3; i++)
+	//{
+	//	acceleration[i] = targetNode->resultantForce[i] / targetNode->m_fMass; // calculate acceleration
+	//	velocity[i] = (targetNode->velocity[i] + acceleration[i] * TIME_SINCE_LAST_FRAME) *DAMPING_CONSTANT_DEFAULT; // calculate velocity
+	//	motion[i] = (velocity[i] * TIME_SINCE_LAST_FRAME) * (1.0f/2.0f)* (acceleration[i] * (TIME_SINCE_LAST_FRAME * TIME_SINCE_LAST_FRAME)); // calculate motion
 
-		// add motion to the node by increasing its position values
-		targetNode->m_afPosition[i] += motion[i];
+	//	// add motion to the node by increasing its position values
+	//	targetNode->m_afPosition[i] += motion[i];
 
-		// calculate new velocity: velocity = displacement /time
-		velocity[i] = motion[i] / TIME_SINCE_LAST_FRAME;
+	//	// calculate new velocity: velocity = displacement /time
+	//	velocity[i] = motion[i] / TIME_SINCE_LAST_FRAME;
 
-		// apply damping to the velocity
-		velocity[i] = velocity[i] * (1.0 - DAMPING_CONSTANT_DEFAULT);
+	//	// apply damping to the velocity
+	//	velocity[i] = velocity[i] * (1.0 - DAMPING_CONSTANT_DEFAULT);
 
-		targetNode->velocity[i] = velocity[i];
-	}
+	//	targetNode->velocity[i] = velocity[i];
+	//}
+
+	// define acceleration vector
+	float accelerationX = targetNode->resultantForce[0] / targetNode->m_fMass;
+	float accelerationY = targetNode->resultantForce[1] / targetNode->m_fMass;
+	float accelerationZ = targetNode->resultantForce[2] / targetNode->m_fMass;
+
+
+	float velocityX = (targetNode->velocity[0] + TIME_SINCE_LAST_FRAME * accelerationX) * DAMPING_CONSTANT_DEFAULT;
+	float velocityY = (targetNode->velocity[1] + TIME_SINCE_LAST_FRAME * accelerationY) * DAMPING_CONSTANT_DEFAULT;
+	float velocityZ = (targetNode->velocity[2] + TIME_SINCE_LAST_FRAME * accelerationZ) * DAMPING_CONSTANT_DEFAULT;
+
+	float x = targetNode->m_afPosition[0] + TIME_SINCE_LAST_FRAME * targetNode->velocity[0] + accelerationX * pow(TIME_SINCE_LAST_FRAME, POWER_2) / 2.0f;
+	float y = targetNode->m_afPosition[1] + TIME_SINCE_LAST_FRAME * targetNode->velocity[1] + accelerationX * pow(TIME_SINCE_LAST_FRAME, POWER_2) / 2.0f;
+	float z = targetNode->m_afPosition[2] + TIME_SINCE_LAST_FRAME * targetNode->velocity[2] + accelerationX * pow(TIME_SINCE_LAST_FRAME, POWER_2) / 2.0f;
+
+	targetNode->m_afPosition[0] += x;
+	targetNode->m_afPosition[1] += y;
+	targetNode->m_afPosition[2] += z;
+
+
+	targetNode->velocity[0] = velocityX;
+	targetNode->velocity[1] = velocityY;
+	targetNode->velocity[2] = velocityZ;
+
+	targetNode->resultantForce[0] = 0.0f;
+	targetNode->resultantForce[1] = 0.0f;
+	targetNode->resultantForce[2] = 0.0f;
+
 }
 
 
