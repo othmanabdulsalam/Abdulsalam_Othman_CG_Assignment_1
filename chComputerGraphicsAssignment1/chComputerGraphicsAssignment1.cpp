@@ -224,8 +224,12 @@ void runSimulation()
 
 void resetResultantForce(chNode *targetNode)
 {
-	// resets the force of the node to 0
-	*targetNode->resultantForce = 0;
+	int i;
+	for (i = 0; i < 3; i++)
+	{
+		// resets the force of the node to 0
+		targetNode->resultantForce[i] = 0;
+	}
 }
 
 void applyForces(chArc* pArc)
@@ -236,16 +240,14 @@ void applyForces(chArc* pArc)
 
 	// direction vector between the 2 nodes
 	float directionVector[3];
+	float directionVectorSquared[3];
 
-	int i;
-	for (i = 0; i < 3; i++)
-	{
-		directionVector[i] = m_pNode1->m_afPosition[i] - m_pNode0->m_afPosition[i];
-	}
+	float directionVectorMagnitude;
+
 	// extension = current length - resting length
-	float extension = pArc->m_fIdealLen - 3.0f;
+	float extension = pArc->m_fIdealLen - 0.1f;
 
-	// calculate the spring force vector : Force = extension * coefficient of restituion
+	// calculate the spring force vector : Force = extension * coefficient of restitution
 	float springForce = extension * pArc->m_fSpringCoef;
 
 	// vector forces for each node: +- force * directionVector
@@ -254,25 +256,38 @@ void applyForces(chArc* pArc)
 	float vectorForce0[3];
 	float vectorForce1[3];
 
-	int j;
+
+	int i;
+
 	for (i = 0; i < 3; i++)
 	{
-		vectorForce0[i] = directionVector[i] * springForce;
-		vectorForce1[i] = -(directionVector[i] * springForce);
+		directionVector[i] = m_pNode1->m_afPosition[i] - m_pNode0->m_afPosition[i];
+		directionVectorSquared[i] = directionVector[i] * directionVector[i];
 	}
 
+	// calculate magnitude 
 
-	// adding the forces to each nodes resultant force
-	int k;
-	for (k = 0; k < 3; k++)
+	directionVectorMagnitude = directionVectorSquared[0] + directionVectorSquared[1] + directionVectorSquared[2];
+	directionVectorMagnitude = sqrtf(directionVectorMagnitude);
+
+	for (i = 0; i < 3; i++)
 	{
-		m_pNode0->resultantForce[k] += vectorForce0[k];
-		m_pNode1->resultantForce[k] += vectorForce1[k];
+		directionVector[i] = directionVector[i] / directionVectorMagnitude;
+
+		vectorForce0[i] = directionVector[i] * springForce;
+		vectorForce1[i] = -(directionVector[i] * springForce);
+
+
+		// adding the forces to each nodes resultant force
+		m_pNode0->resultantForce[i] += vectorForce0[i];
+		m_pNode1->resultantForce[i] += vectorForce1[i];
 	}
 }
 
 void nodeMovement(chNode* targetNode)
 {
+	/* Hooke's Law */
+
 	// acceleration of the node: resultant force / mass of node
 	float acceleration[3];
 
@@ -291,11 +306,21 @@ void nodeMovement(chNode* targetNode)
 		acceleration[i] = targetNode->resultantForce[i] / targetNode->m_fMass; // calculate acceleration
 		velocity[i] = targetNode->velocity[i] + acceleration[i] * timeSinceLastFrame; // calculate velocity
 		motion[i] = (velocity[i] * timeSinceLastFrame) * 0.5 * (acceleration[i] * (timeSinceLastFrame * timeSinceLastFrame)); // calculate motion
+
 		// add motion to the node by increasing its position values
 		targetNode->m_afPosition[i] += motion[i];
+
+		// calculate new velocity: velocity = displacement \ motion /time
+		velocity[i] = motion[i] / timeSinceLastFrame;
+
+		// apply damping
+		targetNode->velocity[i] = velocity[i] * (1.0 - 0.1);
 	}
 
-	
+	/* Coulumb's Law */
+
+
+
 
 }
 
@@ -365,10 +390,12 @@ void keyboard(unsigned char c, int iXPos, int iYPos)
 		if (simulationFlag)// if already true then turn false
 		{
 			simulationFlag = false;
+			//printf("Off -- ");
 		}
 		else // if already false then turn true
 		{
 			simulationFlag = true;
+			//printf("On -- ");
 		}
 		break;
 	case 27: // If escape key is pressed, exit the program
