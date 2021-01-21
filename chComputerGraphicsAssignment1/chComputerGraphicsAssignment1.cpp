@@ -48,6 +48,7 @@ float white[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 // boolean that sets simulation on or off
 bool simulationFlag = false;
 
+/* PROTOTYPES*/
 
 // core functions -> reduce to just the ones needed by glut as pointers to functions to fulfill tasks
 void display(); // The rendering function. This is called once for each frame and you should put rendering code here
@@ -66,10 +67,16 @@ void nodeDisplay(chNode *pNode); // callled by the display function to draw node
 void arcDisplay(chArc *pArc); // called by the display function to draw arcs
 void buildGrid(); // 
 void nodeAttributes(chNode *pNode, unsigned int continent, unsigned int worldSystem, float* position, char* name);
+
+// Functions related to the simulation
 void isSimulationOn();// Function for handling whether simulation should run or not
 void runSimulation(); // Function for running the simulation
-float coulombLaw(chNode *targetNode, float forceX, float forceY, float forceZ); // Function that applies Coulomb's law
-float hookeLaw(chNode* targetNode, float forceX, float forceY, float forceZ); // Function that applies Hooke's law
+void resetResultantForce(chNode* targetNode); // reset the resultant force of the node
+void applyForces(chArc* pArc); // apply spring forces for each of the 2 nodes making up the arc
+void nodeMovement(chNode* targetNode); // apply movement to the node according to the forces applied to it
+
+/* END OF PROTOTYPES*/
+
 
 void nodeDisplay(chNode *pNode) // function to render a node (called from display())
 {
@@ -189,13 +196,6 @@ void arcDisplay(chArc *pArc) // function to render an arc (called from display()
 }
 
 
-const float TOTAL_KINETIC_ENERGY_DEFAULT = 0;
-const float SPRING_CONSTANT_DEFAULT = 0.1f;
-const float COULOMB_CONSTANT_DEFAULT = 500.0f;
-float DAMPING_COEFFICIENT_DEFAULT = 0.2f;
-float TIME_STEP_DEFAULT = 1.0f;
-
-
 void isSimulationOn()
 {
 	if (simulationFlag)
@@ -209,16 +209,20 @@ void runSimulation()
 	int i;
 
 	// loop through every node, reseting the force of each to 0
-	visitNodes(&g_System, resetForce);
+	visitNodes(&g_System, resetResultantForce);
 	
+	// loop through every arc, calculating the spring behaviour between the 2 nodes forming the arc
 	visitArcs(&g_System, applyForces);
 
+
+	// loop through every node, moving them in response to the forces applied to them
+	visitNodes(&g_System, nodeMovement);
 
 
 }
 
 
-void resetForce(chNode *targetNode)
+void resetResultantForce(chNode *targetNode)
 {
 	// resets the force of the node to 0
 	*targetNode->resultantForce = 0;
@@ -230,59 +234,71 @@ void applyForces(chArc* pArc)
 	chNode* m_pNode0 = pArc->m_pNode0;
 	chNode* m_pNode1 = pArc->m_pNode1;
 
+	// direction vector between the 2 nodes
+	float directionVector[3];
 
-}
+	int i;
+	for (i = 0; i < 3; i++)
+	{
+		directionVector[i] = m_pNode1->m_afPosition[i] - m_pNode0->m_afPosition[i];
+	}
+	// extension = current length - resting length
+	float extension = pArc->m_fIdealLen - 3.0f;
 
+	// calculate the spring force vector : Force = extension * coefficient of restituion
+	float springForce = extension * pArc->m_fSpringCoef;
 
-float coulombLaw(chNode* targetNode, float forceX, float forceY, float forceZ)
-{
-	//int j;
-	//for (j = 1; j <= numberOfNodes; j++) // loop through every node where i=1 is the first node
-	//{
-	//	chNode* node = nodeById(&g_System, j);
+	// vector forces for each node: +- force * directionVector
+	// one node has a +ve force and the other a -ve due to 3rd newton law
 
-	//	// check the current node is not the target node
-	//	if (node != targetNode)
-	//	{
-	//		float dx = targetNode->m_afPosition[0] - node->m_afPosition[0];
-	//		float dy = targetNode->m_afPosition[1] - node->m_afPosition[1];
-	//		float dz = targetNode->m_afPosition[2] - node->m_afPosition[2];
+	float vectorForce0[3];
+	float vectorForce1[3];
 
-
-	//		// calculate total distance based off the three values squared a
-
-	//		float distance = sqrt(dx * dx + dy * dy + dz *dz);
-
-	//		float xUnit = dx / distance;
-	//		float yUnit = dy / distance;
-	//		float zUnit = dz / distance;
-
-	//		// calculate the coulumb force based on the 
-
-	//		float coulombForceX = COULOMB_CONSTANT_DEFAULT * (targetNode->m_fMass * node->m_fMass) / pow(distance,2.0f) * xUnit;
-	//		float coulombForceY = COULOMB_CONSTANT_DEFAULT* (targetNode->m_fMass * node->m_fMass) / pow(distance, 2.0f) * yUnit;
-	//		float coulombForceZ = COULOMB_CONSTANT_DEFAULT * (targetNode->m_fMass * node->m_fMass) / pow(distance, 2.0f) * zUnit;
+	int j;
+	for (i = 0; i < 3; i++)
+	{
+		vectorForce0[i] = directionVector[i] * springForce;
+		vectorForce1[i] = -(directionVector[i] * springForce);
+	}
 
 
-	//		// add the coulumb forces to the total forces in each direction
-
-	//		forceX += coulombForceX;
-	//		forceY += coulombForceY;
-	//		forceZ += coulombForceZ;
-	//	}
-	//}
-
-	//return forceX, forceY, forceZ;
-}
-
-float hookeLaw(chNode* targetNode, float forceX, float forceY, float forceZ)
-{
+	// adding the forces to each nodes resultant force
 	int k;
-
-
-
-	return forceX, forceY, forceZ;
+	for (k = 0; k < 3; k++)
+	{
+		m_pNode0->resultantForce[k] += vectorForce0[k];
+		m_pNode1->resultantForce[k] += vectorForce1[k];
+	}
 }
+
+void nodeMovement(chNode* targetNode)
+{
+	// acceleration of the node: resultant force / mass of node
+	float acceleration[3];
+
+	// time since last frame
+	float timeSinceLastFrame = 1.0f / 60.0f;
+
+	// velocity of the node: final velocity = initial velocity + (acceleration * time)
+	float velocity[3];
+
+	// motion of node: motion = (velocity * time frame for motion) * 0.5 * (acceleration * time^2)
+	float motion[3];
+
+	int i;
+	for (i = 0; i < 3; i++)
+	{
+		acceleration[i] = targetNode->resultantForce[i] / targetNode->m_fMass; // calculate acceleration
+		velocity[i] = targetNode->velocity[i] + acceleration[i] * timeSinceLastFrame; // calculate velocity
+		motion[i] = (velocity[i] * timeSinceLastFrame) * 0.5 * (acceleration[i] * (timeSinceLastFrame * timeSinceLastFrame)); // calculate motion
+		// add motion to the node by increasing its position values
+		targetNode->m_afPosition[i] += motion[i];
+	}
+
+	
+
+}
+
 
 // draw the scene. Called once per frame and should only deal with scene drawing (not updating the simulator)
 void display() 

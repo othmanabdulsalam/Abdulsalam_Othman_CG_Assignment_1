@@ -24,7 +24,9 @@ typedef struct _chNode
 	char m_acName[64];
 
 	// added fields
-	float resultantForce[4];
+	float resultantForce[3];
+	float acceleration[3];
+	float velocity[3];
 
 	// store adjacent nodes
 } chNode;
