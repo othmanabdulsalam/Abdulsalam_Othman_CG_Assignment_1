@@ -241,6 +241,7 @@ static float SPRING_CONSTANT_DEFAULT = 1.0f;
 static float DAMPING_CONSTANT_DEFAULT = 0.1f;
 static float RESTING_LENGTH = 3.0f;
 static float TIME_SINCE_LAST_FRAME = 1.0f / 60.0f;
+//static float TIME_SINCE_LAST_FRAME = 1.0f ;
 
 static float POWER_2 = 2.0f;
 
