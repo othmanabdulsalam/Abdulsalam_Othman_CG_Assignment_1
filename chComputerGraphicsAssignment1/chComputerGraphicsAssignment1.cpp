@@ -232,8 +232,15 @@ void resetResultantForce(chNode *targetNode)
 	}
 }
 
+
+static float COULOMB_CONSTANT_DEFAULT = 200.0f;
+float power = 2.0f;
+float restingLength = 1.0f;
+
 void applyForces(chArc* pArc)
 {
+	/* Hooke's Law */
+
 	// node0 indicates start node, node1 indicates end node
 	chNode* m_pNode0 = pArc->m_pNode0;
 	chNode* m_pNode1 = pArc->m_pNode1;
@@ -245,7 +252,7 @@ void applyForces(chArc* pArc)
 	float directionVectorMagnitude;
 
 	// extension = current length - resting length
-	float extension = pArc->m_fIdealLen - 0.1f;
+	float extension = pArc->m_fIdealLen - restingLength;
 
 	// calculate the spring force vector : Force = extension * coefficient of restitution
 	float springForce = extension * pArc->m_fSpringCoef;
@@ -265,6 +272,30 @@ void applyForces(chArc* pArc)
 		directionVectorSquared[i] = directionVector[i] * directionVector[i];
 	}
 
+	/* Coulumb's Law */
+
+
+	float dx = directionVector[0];
+	float dy = directionVector[1];
+	float dz = directionVector[2];
+	float distance = sqrt(dx * dx + dy * dy + dz * dz);
+	float xUnit = dx / distance;
+	float yUnit = dy / distance;
+	float zUnit = dz / distance;
+
+	float coulumbForceX = COULOMB_CONSTANT_DEFAULT * (m_pNode0->m_fMass * m_pNode1->m_fMass) / pow(distance, power) * xUnit;
+	float coulumbForceY = COULOMB_CONSTANT_DEFAULT * (m_pNode0->m_fMass * m_pNode1->m_fMass) / pow(distance, power) * yUnit;
+	float coulumbForceZ = COULOMB_CONSTANT_DEFAULT * (m_pNode0->m_fMass * m_pNode1->m_fMass) / pow(distance, power) * zUnit;
+
+	// adding the forces to each nodes resultant force
+	m_pNode0->resultantForce[0] += coulumbForceX;
+	m_pNode0->resultantForce[1] += coulumbForceY;
+	m_pNode0->resultantForce[2] += coulumbForceZ;
+
+
+
+
+
 	// calculate magnitude 
 
 	directionVectorMagnitude = directionVectorSquared[0] + directionVectorSquared[1] + directionVectorSquared[2];
@@ -272,6 +303,7 @@ void applyForces(chArc* pArc)
 
 	for (i = 0; i < 3; i++)
 	{
+		// normalising the vector
 		directionVector[i] = directionVector[i] / directionVectorMagnitude;
 
 		vectorForce0[i] = directionVector[i] * springForce;
@@ -282,12 +314,11 @@ void applyForces(chArc* pArc)
 		m_pNode0->resultantForce[i] += vectorForce0[i];
 		m_pNode1->resultantForce[i] += vectorForce1[i];
 	}
+
 }
 
 void nodeMovement(chNode* targetNode)
 {
-	/* Hooke's Law */
-
 	// acceleration of the node: resultant force / mass of node
 	float acceleration[3];
 
@@ -316,14 +347,7 @@ void nodeMovement(chNode* targetNode)
 		// apply damping
 		targetNode->velocity[i] = velocity[i] * (1.0 - 0.1);
 	}
-
-	/* Coulumb's Law */
-
-
-
-
 }
-
 
 // draw the scene. Called once per frame and should only deal with scene drawing (not updating the simulator)
 void display() 
