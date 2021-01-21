@@ -25,8 +25,6 @@ typedef struct _chNode
 
 	// added fields
 	float resultantForce[3];
-
-
 	float acceleration[3];
 	float velocity[3];
 
