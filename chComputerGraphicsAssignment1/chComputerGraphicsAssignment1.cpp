@@ -76,7 +76,7 @@ void runSimulation(); // Function for running the simulation
 void resetResultantForce(chNode* targetNode); // reset the resultant force of the node
 void applyForces(chArc* pArc); // apply spring forces for each of the 2 nodes making up the arc
 void nodeBehaviour(chNode* targetNode); // change the behaviour of the node based off the forces applied to it
-void applyMovement(chNode* targetNode); // apply movement to the node
+void nodeMove(chNode* targetNode); // apply movement to the node
 
 /* END OF PROTOTYPES*/
 
@@ -93,6 +93,7 @@ void nodeDisplay(chNode *pNode) // function to render a node (called from displa
 	glPushMatrix();
 	glPushAttrib(GL_ALL_ATTRIB_BITS);
 
+
 	// call to function that handles attributes of the node
 	nodeAttributes(pNode,continent, worldSystem,position,name);
 
@@ -103,9 +104,8 @@ void nodeDisplay(chNode *pNode) // function to render a node (called from displa
 void nodeAttributes(chNode* pNode, unsigned int continent, unsigned int worldSystem, float* position,char* name)
 {
 
-	// use gl translate d because using integer numbers 
-	// pass x y and z position variables
-	glTranslated(position[0], position[1], position[2]);
+	// pass x y and z position variables to translate
+	glTranslatef(position[0], position[1], position[2]);
 
 	// switch statement handling the colour that is chosen depending on continent that country belongs to
 	switch (continent)
@@ -215,8 +215,11 @@ void runSimulation()
 	// loop through every arc, calculating the spring behaviour between the 2 nodes forming the arc
 	visitArcs(&g_System, applyForces);
 
-	// loop through every node, moving them in response to the forces applied to them
+	// loop through every node, applying the forces
 	visitNodes(&g_System, nodeBehaviour);
+
+	// loop through every node, translating their movement according to their new position
+	//visitNodes(&g_System, nodeMove);
 
 }
 
@@ -236,12 +239,11 @@ void resetResultantForce(chNode *targetNode)
 }
 
 // constants used in the simulation
-static float COULOMB_CONSTANT_DEFAULT = 500.0f;
+static float COULOMB_CONSTANT_DEFAULT = 50.0f;
 static float SPRING_CONSTANT_DEFAULT = 1.0f;
 static float DAMPING_CONSTANT_DEFAULT = 0.1f;
-static float RESTING_LENGTH = 3.0f;
+static float RESTING_LENGTH = 1.0f;
 static float TIME_SINCE_LAST_FRAME = 1.0f / 60.0f;
-//static float TIME_SINCE_LAST_FRAME = 60.0f ;
 
 static float POWER_2 = 2.0f;
 
@@ -264,16 +266,22 @@ void applyForces(chArc* pArc)
 		directionVectorSquared[i] = directionVector[i] * directionVector[i];
 	}
 
-	/* Coulumb's Law */
+	
 	float dx = m_pNode0->m_afPosition[0] - m_pNode1->m_afPosition[0];
 	float dy = m_pNode0->m_afPosition[1] - m_pNode1->m_afPosition[1];
 	float dz = m_pNode0->m_afPosition[2] - m_pNode1->m_afPosition[2];
 	float distance = sqrt(dx * dx + dy * dy + dz * dz);
 
+
+	// the distances of each direction is normalised
 	float xUnit = dx / distance;
 	float yUnit = dy / distance;
 	float zUnit = dz / distance;
 
+	float d = distance - RESTING_LENGTH;
+
+
+	/* Coulumb's Law */
 	float coulumbForceX = COULOMB_CONSTANT_DEFAULT * (m_pNode0->m_fMass * m_pNode1->m_fMass) / pow(distance, POWER_2) * xUnit;
 	float coulumbForceY = COULOMB_CONSTANT_DEFAULT * (m_pNode0->m_fMass * m_pNode1->m_fMass) / pow(distance, POWER_2) * yUnit;
 	float coulumbForceZ = COULOMB_CONSTANT_DEFAULT * (m_pNode0->m_fMass * m_pNode1->m_fMass) / pow(distance, POWER_2) * zUnit;
@@ -287,59 +295,21 @@ void applyForces(chArc* pArc)
 	m_pNode1->resultantForce[1] += coulumbForceY;
 	m_pNode1->resultantForce[2] += coulumbForceZ;
 
-	/* End of Coulumb's Law */
 
 	/* Hooke's Law */
-
-	float d = distance - RESTING_LENGTH;
 
 	float hookeForceX = -1.0f * SPRING_CONSTANT_DEFAULT * d * xUnit;
 	float hookeForceY = -1.0f * SPRING_CONSTANT_DEFAULT * d * yUnit;
 	float hookeForceZ = -1.0f * SPRING_CONSTANT_DEFAULT * d * zUnit;
-
 
 	// adding the forces to each nodes resultant force
 	m_pNode0->resultantForce[0] += hookeForceX;
 	m_pNode0->resultantForce[1] += hookeForceY;
 	m_pNode0->resultantForce[2] += hookeForceZ;
 
-	m_pNode1->resultantForce[0] += hookeForceX;
-	m_pNode1->resultantForce[1] += hookeForceY;
-	m_pNode1->resultantForce[2] += hookeForceZ;
-
-	/* Alternative approach */
-
-	float directionVectorMagnitude;
-
-	// extension = current length - resting length
-	float extension = distance - RESTING_LENGTH;
-
-	// calculate the spring force : Force = extension * coefficient of restitution
-	//float springForce = extension * pArc->m_fSpringCoef;
-
-	// vector forces for each node: +- force * directionVector
-	// one node has a +ve force and the other a -ve due to 3rd newton law
-
-	//float vectorForce0[3];
-	//float vectorForce1[3];
-
-	//// calculate magnitude 
-
-	//directionVectorMagnitude = directionVectorSquared[0] + directionVectorSquared[1] + directionVectorSquared[2];
-	//directionVectorMagnitude = sqrtf(directionVectorMagnitude);
-	//int j;
-	//for (j = 0; j < 3; j++)
-	//{
-	//	// normalising the vector
-	//	directionVector[j] = directionVector[j] / directionVectorMagnitude;
-
-	//	vectorForce0[j] = directionVector[j] * springForce;
-	//	vectorForce1[j] = -1.0f * (directionVector[j] * springForce);
-
-	//	// adding the forces to each nodes resultant force
-	//	m_pNode0->resultantForce[j] += vectorForce0[j];
-	//	m_pNode1->resultantForce[j] += vectorForce1[j];
-	//}
+	m_pNode1->resultantForce[0] += -hookeForceX;
+	m_pNode1->resultantForce[1] += -hookeForceY;
+	m_pNode1->resultantForce[2] += -hookeForceZ;
 
 	/* End of Hooke's Law */
 }
@@ -380,21 +350,24 @@ void nodeBehaviour(chNode* targetNode)
 	float accelerationY = targetNode->resultantForce[1] / targetNode->m_fMass;
 	float accelerationZ = targetNode->resultantForce[2] / targetNode->m_fMass;
 
-
+	// define velocity vector
 	float velocityX = (targetNode->velocity[0] + TIME_SINCE_LAST_FRAME * accelerationX) *DAMPING_CONSTANT_DEFAULT;
 	float velocityY = (targetNode->velocity[1] + TIME_SINCE_LAST_FRAME * accelerationY) *DAMPING_CONSTANT_DEFAULT;
 	float velocityZ = (targetNode->velocity[2] + TIME_SINCE_LAST_FRAME * accelerationZ) *DAMPING_CONSTANT_DEFAULT;
 
-	float x = targetNode->m_afPosition[0] + TIME_SINCE_LAST_FRAME * targetNode->velocity[0] + accelerationX * pow(TIME_SINCE_LAST_FRAME, POWER_2) / 2.0f;
-	float y = targetNode->m_afPosition[1] + TIME_SINCE_LAST_FRAME * targetNode->velocity[1] + accelerationX * pow(TIME_SINCE_LAST_FRAME, POWER_2) / 2.0f;
-	float z = targetNode->m_afPosition[2] + TIME_SINCE_LAST_FRAME * targetNode->velocity[2] + accelerationX * pow(TIME_SINCE_LAST_FRAME, POWER_2) / 2.0f;
+
+	// displacement of the node
+	float x = targetNode->m_afPosition[0] + (TIME_SINCE_LAST_FRAME * targetNode->velocity[0]) + accelerationX * pow(TIME_SINCE_LAST_FRAME, POWER_2) / 2.0f;
+	float y = targetNode->m_afPosition[1] + (TIME_SINCE_LAST_FRAME * targetNode->velocity[1]) + accelerationX * pow(TIME_SINCE_LAST_FRAME, POWER_2) / 2.0f;
+	float z = targetNode->m_afPosition[2] + (TIME_SINCE_LAST_FRAME * targetNode->velocity[2]) + (accelerationX * pow(TIME_SINCE_LAST_FRAME, POWER_2)) / 2.0f;
 
 
-	// set new position of the node
+	// set new position of the node. this makes the nodes disappear and needs to be fixed somehow
 	targetNode->m_afPosition[0] = x;
 	targetNode->m_afPosition[1] = y;
 	targetNode->m_afPosition[2] = z;
 
+	//nodeMove(targetNode);
 
 	// set new velocity of the node
 	targetNode->velocity[0] = velocityX;
@@ -407,6 +380,12 @@ void nodeBehaviour(chNode* targetNode)
 
 }
 
+
+
+void nodeMove(chNode* targetNode)
+{
+	glTranslatef(targetNode->m_afPosition[0], targetNode->m_afPosition[1], targetNode->m_afPosition[2]);
+}
 
 // mouse callback function
 //void mouseCB(int button, int state, int x, int y)
@@ -493,7 +472,13 @@ void keyboard(unsigned char c, int iXPos, int iYPos)
 			simulationFlag = true;
 			//printf("On -- ");
 		}
-		break;		
+		break;	
+
+
+	case 't':
+		// change nodes to represent their 
+
+		break;
 	case 27: // If escape key is pressed, exit the program
 		exit(0);
 		break;
