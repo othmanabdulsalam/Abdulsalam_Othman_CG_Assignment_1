@@ -345,38 +345,45 @@ void nodeBehaviour(chNode* targetNode)
 	//	targetNode->velocity[i] = velocity[i];
 	//}
 
-	// define acceleration vector
+	// 3a: define acceleration vector
 	float accelerationX = targetNode->resultantForce[0] / targetNode->m_fMass;
 	float accelerationY = targetNode->resultantForce[1] / targetNode->m_fMass;
 	float accelerationZ = targetNode->resultantForce[2] / targetNode->m_fMass;
 
-	// define velocity vector
+	// 3b: define velocity vector
 	float velocityX = (targetNode->velocity[0] + TIME_SINCE_LAST_FRAME * accelerationX) *DAMPING_CONSTANT_DEFAULT;
 	float velocityY = (targetNode->velocity[1] + TIME_SINCE_LAST_FRAME * accelerationY) *DAMPING_CONSTANT_DEFAULT;
 	float velocityZ = (targetNode->velocity[2] + TIME_SINCE_LAST_FRAME * accelerationZ) *DAMPING_CONSTANT_DEFAULT;
 
 
-	// displacement of the node
+	// 3c: displacement of the node
 	float x = targetNode->m_afPosition[0] + (TIME_SINCE_LAST_FRAME * targetNode->velocity[0]) + accelerationX * pow(TIME_SINCE_LAST_FRAME, POWER_2) / 2.0f;
 	float y = targetNode->m_afPosition[1] + (TIME_SINCE_LAST_FRAME * targetNode->velocity[1]) + accelerationX * pow(TIME_SINCE_LAST_FRAME, POWER_2) / 2.0f;
 	float z = targetNode->m_afPosition[2] + (TIME_SINCE_LAST_FRAME * targetNode->velocity[2]) + (accelerationX * pow(TIME_SINCE_LAST_FRAME, POWER_2)) / 2.0f;
 
 
-	// set new position of the node. this makes the nodes disappear and needs to be fixed somehow
+	// 3c: set new position of the node. this makes the nodes disappear and needs to be fixed somehow
 	targetNode->m_afPosition[0] = x;
 	targetNode->m_afPosition[1] = y;
 	targetNode->m_afPosition[2] = z;
 
 	//nodeMove(targetNode);
 
+
+	// apply damping
+	velocityX = velocityX* (1.0 - DAMPING_CONSTANT_DEFAULT);
+	velocityY = velocityY* (1.0 - DAMPING_CONSTANT_DEFAULT);
+	velocityZ = velocityZ* (1.0 - DAMPING_CONSTANT_DEFAULT);
+
+
 	// set new velocity of the node
 	targetNode->velocity[0] = velocityX;
 	targetNode->velocity[1] = velocityY;
 	targetNode->velocity[2] = velocityZ;
 
-	/*targetNode->resultantForce[0] = 0.0f;
-	targetNode->resultantForce[1] = 0.0f;
-	targetNode->resultantForce[2] = 0.0f;*/
+	//targetNode->resultantForce[0] = 0.0f;
+	//targetNode->resultantForce[1] = 0.0f;
+	//targetNode->resultantForce[2] = 0.0f;
 
 }
 
