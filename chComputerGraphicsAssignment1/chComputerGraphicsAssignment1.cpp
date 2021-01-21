@@ -241,7 +241,7 @@ static float SPRING_CONSTANT_DEFAULT = 1.0f;
 static float DAMPING_CONSTANT_DEFAULT = 0.1f;
 static float RESTING_LENGTH = 3.0f;
 static float TIME_SINCE_LAST_FRAME = 1.0f / 60.0f;
-//static float TIME_SINCE_LAST_FRAME = 1.0f ;
+//static float TIME_SINCE_LAST_FRAME = 60.0f ;
 
 static float POWER_2 = 2.0f;
 
@@ -265,9 +265,9 @@ void applyForces(chArc* pArc)
 	}
 
 	/* Coulumb's Law */
-	float dx = directionVector[0];
-	float dy = directionVector[1];
-	float dz = directionVector[2];
+	float dx = m_pNode0->m_afPosition[0] - m_pNode1->m_afPosition[0];
+	float dy = m_pNode0->m_afPosition[1] - m_pNode1->m_afPosition[1];
+	float dz = m_pNode0->m_afPosition[2] - m_pNode1->m_afPosition[2];
 	float distance = sqrt(dx * dx + dy * dy + dz * dz);
 
 	float xUnit = dx / distance;
@@ -283,9 +283,9 @@ void applyForces(chArc* pArc)
 	m_pNode0->resultantForce[1] += coulumbForceY;
 	m_pNode0->resultantForce[2] += coulumbForceZ;
 
-	/*m_pNode1->resultantForce[0] += coulumbForceX;
+	m_pNode1->resultantForce[0] += coulumbForceX;
 	m_pNode1->resultantForce[1] += coulumbForceY;
-	m_pNode1->resultantForce[2] += coulumbForceZ;*/
+	m_pNode1->resultantForce[2] += coulumbForceZ;
 
 	/* End of Coulumb's Law */
 
@@ -303,9 +303,9 @@ void applyForces(chArc* pArc)
 	m_pNode0->resultantForce[1] += hookeForceY;
 	m_pNode0->resultantForce[2] += hookeForceZ;
 
-	/*m_pNode1->resultantForce[0] += hookeForceX;
+	m_pNode1->resultantForce[0] += hookeForceX;
 	m_pNode1->resultantForce[1] += hookeForceY;
-	m_pNode1->resultantForce[2] += hookeForceZ;*/
+	m_pNode1->resultantForce[2] += hookeForceZ;
 
 	/* Alternative approach */
 

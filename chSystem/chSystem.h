@@ -28,7 +28,6 @@ typedef struct _chNode
 	float acceleration[3];
 	float velocity[3];
 
-	// store adjacent nodes
 } chNode;
 
 typedef struct _chArc
