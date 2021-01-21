@@ -235,13 +235,14 @@ void resetResultantForce(chNode *targetNode)
 	targetNode->resultantForce[2] = 0.0f;*/
 }
 
-
-static float COULOMB_CONSTANT_DEFAULT = 50.0f;
-static float SPRING_CONSTANT_DEFAULT = 0.1f;
+// constants used in the simulation
+static float COULOMB_CONSTANT_DEFAULT = 0.5f;
+static float SPRING_CONSTANT_DEFAULT = 1.0f;
 static float DAMPING_CONSTANT_DEFAULT = 0.2f;
-static float POWER_2 = 2.0f;
-float restingLength = 3.0f;
+static float RESTING_LENGTH = 3.0f;
 static float TIME_SINCE_LAST_FRAME = 1.0f / 60.0f;
+
+static float POWER_2 = 2.0f;
 
 void applyForces(chArc* pArc)
 {
@@ -262,8 +263,6 @@ void applyForces(chArc* pArc)
 	}
 
 	/* Coulumb's Law */
-
-
 	float dx = directionVector[0];
 	float dy = directionVector[1];
 	float dz = directionVector[2];
@@ -282,15 +281,36 @@ void applyForces(chArc* pArc)
 	m_pNode0->resultantForce[1] += coulumbForceY;
 	m_pNode0->resultantForce[2] += coulumbForceZ;
 
+	m_pNode1->resultantForce[0] += coulumbForceX;
+	m_pNode1->resultantForce[1] += coulumbForceY;
+	m_pNode1->resultantForce[2] += coulumbForceZ;
 
 	/* End of Coulumb's Law */
 
 	/* Hooke's Law */
 
+	float d = distance - RESTING_LENGTH;
+
+	float hookeForceX = -1.0f * SPRING_CONSTANT_DEFAULT * d * xUnit;
+	float hookeForceY = -1.0f * SPRING_CONSTANT_DEFAULT * d * yUnit;
+	float hookeForceZ = -1.0f * SPRING_CONSTANT_DEFAULT * d * zUnit;
+
+
+	// adding the forces to each nodes resultant force
+	m_pNode0->resultantForce[0] += hookeForceX;
+	m_pNode0->resultantForce[1] += hookeForceY;
+	m_pNode0->resultantForce[2] += hookeForceZ;
+
+	m_pNode1->resultantForce[0] += hookeForceX;
+	m_pNode1->resultantForce[1] += hookeForceY;
+	m_pNode1->resultantForce[2] += hookeForceZ;
+
+	/* Alternative approach */
+
 	float directionVectorMagnitude;
 
 	// extension = current length - resting length
-	float extension = distance - restingLength;
+	float extension = distance - RESTING_LENGTH;
 
 	// calculate the spring force : Force = extension * coefficient of restitution
 	//float springForce = extension * pArc->m_fSpringCoef;
@@ -318,26 +338,6 @@ void applyForces(chArc* pArc)
 	//	m_pNode0->resultantForce[j] += vectorForce0[j];
 	//	m_pNode1->resultantForce[j] += vectorForce1[j];
 	//}
-
-	/* Alternative approach */
-
-
-
-	float d = distance - restingLength;
-
-	float hookeForceX = -1.0f * SPRING_CONSTANT_DEFAULT * d * xUnit;
-	float hookeForceY = -1.0f * SPRING_CONSTANT_DEFAULT * d * yUnit;
-	float hookeForceZ = -1.0f * SPRING_CONSTANT_DEFAULT * d * zUnit;
-
-
-	// adding the forces to each nodes resultant force
-	m_pNode0->resultantForce[0] += hookeForceX;
-	m_pNode0->resultantForce[1] += hookeForceY;
-	m_pNode0->resultantForce[2] += hookeForceZ;
-
-	m_pNode1->resultantForce[0] += hookeForceX;
-	m_pNode1->resultantForce[1] += hookeForceY;
-	m_pNode1->resultantForce[2] += hookeForceZ;
 
 	/* End of Hooke's Law */
 }
