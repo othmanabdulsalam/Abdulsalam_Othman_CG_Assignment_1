@@ -47,6 +47,8 @@ float white[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 // boolean that sets simulation on or off
 bool simulationFlag = false;
+// boolean flag for menu
+bool menuActive = false;
 
 /* PROTOTYPES*/
 
@@ -233,7 +235,7 @@ void resetResultantForce(chNode *targetNode)
 }
 
 
-static float COULOMB_CONSTANT_DEFAULT = 200.0f;
+static float COULOMB_CONSTANT_DEFAULT = 500.0f;
 float power = 2.0f;
 float restingLength = 1.0f;
 
@@ -293,8 +295,7 @@ void applyForces(chArc* pArc)
 	m_pNode0->resultantForce[2] += coulumbForceZ;
 
 
-
-
+	/* Hooke's Law */
 
 	// calculate magnitude 
 
@@ -322,7 +323,7 @@ void nodeMovement(chNode* targetNode)
 	// acceleration of the node: resultant force / mass of node
 	float acceleration[3];
 
-	// time since last frame
+	// 1/60 assumes a constant framerate of 60 frames per second.
 	float timeSinceLastFrame = 1.0f / 60.0f;
 
 	// velocity of the node: final velocity = initial velocity + (acceleration * time)
@@ -341,13 +342,33 @@ void nodeMovement(chNode* targetNode)
 		// add motion to the node by increasing its position values
 		targetNode->m_afPosition[i] += motion[i];
 
+
+		// set target location for the node to travel towards
+		//targetNode->targetLocation[i] = targetNode->m_afPosition[i] + motion[i];
+
 		// calculate new velocity: velocity = displacement \ motion /time
 		velocity[i] = motion[i] / timeSinceLastFrame;
 
 		// apply damping
-		targetNode->velocity[i] = velocity[i] * (1.0 - 0.1);
+		targetNode->velocity[i] = velocity[i] * (1.0 - 0.2);
+	}
+
+
+
+}
+
+// mouse callback function
+void mouseCB(int button, int state, int x, int y)
+{
+	if (button == GLUT_RIGHT_BUTTON)
+	{
+		glutCreateMenu();
 	}
 }
+
+
+
+
 
 // draw the scene. Called once per frame and should only deal with scene drawing (not updating the simulator)
 void display() 
@@ -421,7 +442,7 @@ void keyboard(unsigned char c, int iXPos, int iYPos)
 			simulationFlag = true;
 			//printf("On -- ");
 		}
-		break;
+		break;		
 	case 27: // If escape key is pressed, exit the program
 		exit(0);
 		break;

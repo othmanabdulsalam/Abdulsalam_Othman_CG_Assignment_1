@@ -27,6 +27,7 @@ typedef struct _chNode
 	float resultantForce[3];
 	float acceleration[3];
 	float velocity[3];
+	float targetLocation[3];
 
 	// store adjacent nodes
 } chNode;
