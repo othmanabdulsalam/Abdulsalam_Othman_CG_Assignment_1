@@ -227,16 +227,21 @@ void resetResultantForce(chNode *targetNode)
 	for (i = 0; i < 3; i++)
 	{
 		// resets the force of the node to 0
-		targetNode->resultantForce[i] = 0;
+		targetNode->resultantForce[i] = 0.0f;
 	}
+
+	/*targetNode->resultantForce[0] = 0.0f;
+	targetNode->resultantForce[1] = 0.0f;
+	targetNode->resultantForce[2] = 0.0f;*/
 }
 
 
-static float COULOMB_CONSTANT_DEFAULT = 20.0f;
+static float COULOMB_CONSTANT_DEFAULT = 50.0f;
 static float SPRING_CONSTANT_DEFAULT = 0.1f;
 static float DAMPING_CONSTANT_DEFAULT = 0.2f;
 float power = 2.0f;
 float restingLength = 1.0f;
+static float TIME_SINCE_LAST_FRAME = 1.0f / 60.0f;
 
 void applyForces(chArc* pArc)
 {
@@ -289,45 +294,47 @@ void applyForces(chArc* pArc)
 	// calculate the spring force : Force = extension * coefficient of restitution
 	float springForce = extension * pArc->m_fSpringCoef;
 
-	// vector forces for each node: +- force * directionVector
-	// one node has a +ve force and the other a -ve due to 3rd newton law
+	//// vector forces for each node: +- force * directionVector
+	//// one node has a +ve force and the other a -ve due to 3rd newton law
 
-	float vectorForce0[3];
-	float vectorForce1[3];
+	//float vectorForce0[3];
+	//float vectorForce1[3];
 
-	// calculate magnitude 
+	//// calculate magnitude 
 
-	directionVectorMagnitude = directionVectorSquared[0] + directionVectorSquared[1] + directionVectorSquared[2];
-	directionVectorMagnitude = sqrtf(directionVectorMagnitude);
-	int j;
-	for (j = 0; j < 3; j++)
-	{
-		// normalising the vector
-		directionVector[j] = directionVector[j] / directionVectorMagnitude;
+	//directionVectorMagnitude = directionVectorSquared[0] + directionVectorSquared[1] + directionVectorSquared[2];
+	//directionVectorMagnitude = sqrtf(directionVectorMagnitude);
+	//int j;
+	//for (j = 0; j < 3; j++)
+	//{
+	//	// normalising the vector
+	//	directionVector[j] = directionVector[j] / directionVectorMagnitude;
 
-		vectorForce0[j] = directionVector[j] * springForce;
-		vectorForce1[j] = -1.0f * (directionVector[j] * springForce);
+	//	vectorForce0[j] = directionVector[j] * springForce;
+	//	vectorForce1[j] = -1.0f * (directionVector[j] * springForce);
 
-		// adding the forces to each nodes resultant force
-		m_pNode0->resultantForce[j] += vectorForce0[j];
-		m_pNode1->resultantForce[j] += vectorForce1[j];
-	}
+	//	// adding the forces to each nodes resultant force
+	//	m_pNode0->resultantForce[j] += vectorForce0[j];
+	//	m_pNode1->resultantForce[j] += vectorForce1[j];
+	//}
 
-	//float d = distance - springForce;
+	/* Alternative approach */
 
-	//float hookeForceX = -1.0f * SPRING_CONSTANT_DEFAULT * d * xUnit;
-	//float hookeForceY = -1.0f * SPRING_CONSTANT_DEFAULT * d * yUnit;
-	//float hookeForceZ = -1.0f * SPRING_CONSTANT_DEFAULT * d * zUnit;
+	float d = distance - springForce;
+
+	float hookeForceX = -1.0f * SPRING_CONSTANT_DEFAULT * d * xUnit;
+	float hookeForceY = -1.0f * SPRING_CONSTANT_DEFAULT * d * yUnit;
+	float hookeForceZ = -1.0f * SPRING_CONSTANT_DEFAULT * d * zUnit;
 
 
-	//// adding the forces to each nodes resultant force
-	//m_pNode0->resultantForce[0] += hookeForceX;
-	//m_pNode0->resultantForce[1] += hookeForceY;
-	//m_pNode0->resultantForce[2] += hookeForceZ;
+	// adding the forces to each nodes resultant force
+	m_pNode0->resultantForce[0] += hookeForceX;
+	m_pNode0->resultantForce[1] += hookeForceY;
+	m_pNode0->resultantForce[2] += hookeForceZ;
 
-	//m_pNode1->resultantForce[0] += hookeForceX;
-	//m_pNode1->resultantForce[1] += hookeForceY;
-	//m_pNode1->resultantForce[2] += hookeForceZ;
+	m_pNode1->resultantForce[0] += hookeForceX;
+	m_pNode1->resultantForce[1] += hookeForceY;
+	m_pNode1->resultantForce[2] += hookeForceZ;
 
 	/* End of Hooke's Law */
 }
@@ -336,9 +343,6 @@ void nodeBehaviour(chNode* targetNode)
 {
 	// acceleration of the node: resultant force / mass of node
 	float acceleration[3];
-
-	// 1/60 assumes a constant framerate of 60 frames per second.
-	float timeSinceLastFrame = 1.0f / 60.0f;
 
 	// velocity of the node: final velocity = initial velocity + (acceleration * time)
 	float velocity[3];
@@ -350,23 +354,20 @@ void nodeBehaviour(chNode* targetNode)
 	for (i = 0; i < 3; i++)
 	{
 		acceleration[i] = targetNode->resultantForce[i] / targetNode->m_fMass; // calculate acceleration
-		velocity[i] = (targetNode->velocity[i] + acceleration[i] * timeSinceLastFrame) * DAMPING_CONSTANT_DEFAULT; // calculate velocity
-		motion[i] = (velocity[i] * timeSinceLastFrame) * (1.0f/2.0f)* (acceleration[i] * (timeSinceLastFrame * timeSinceLastFrame)); // calculate motion
+		velocity[i] = (targetNode->velocity[i] + acceleration[i] * TIME_SINCE_LAST_FRAME) * DAMPING_CONSTANT_DEFAULT; // calculate velocity
+		motion[i] = (velocity[i] * TIME_SINCE_LAST_FRAME) * (1.0f/2.0f)* (acceleration[i] * (TIME_SINCE_LAST_FRAME * TIME_SINCE_LAST_FRAME)); // calculate motion
 
 		// add motion to the node by increasing its position values
 		targetNode->m_afPosition[i] += motion[i];
 
 		// calculate new velocity: velocity = displacement /time
-		velocity[i] = motion[i] / timeSinceLastFrame;
+		velocity[i] = motion[i] / TIME_SINCE_LAST_FRAME;
 
-		// apply damping
+		// apply damping to the velocity
 		velocity[i] = velocity[i] * (1.0 - DAMPING_CONSTANT_DEFAULT);
 
 		targetNode->velocity[i] = velocity[i];
 	}
-
-
-
 }
 
 
