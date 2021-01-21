@@ -268,6 +268,7 @@ void applyForces(chArc* pArc)
 	float dy = directionVector[1];
 	float dz = directionVector[2];
 	float distance = sqrt(dx * dx + dy * dy + dz * dz);
+
 	float xUnit = dx / distance;
 	float yUnit = dy / distance;
 	float zUnit = dz / distance;
@@ -289,7 +290,7 @@ void applyForces(chArc* pArc)
 	float directionVectorMagnitude;
 
 	// extension = current length - resting length
-	float extension = pArc->m_fIdealLen - restingLength;
+	float extension = distance - restingLength;
 
 	// calculate the spring force : Force = extension * coefficient of restitution
 	float springForce = extension * pArc->m_fSpringCoef;
